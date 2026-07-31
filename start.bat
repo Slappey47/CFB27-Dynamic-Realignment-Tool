@@ -9,7 +9,7 @@ if not exist "node_modules" (
     echo.
 )
 
-echo Starting Dynamic Recruiting Pipeline Tool...
+echo Starting Dynamic Conference Realignment Tool...
 call npm start
 
 echo.
