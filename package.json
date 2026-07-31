@@ -1,7 +1,7 @@
 {
-  "name": "cfb27-pipeline-tool",
+  "name": "cfb27-realignment-tool",
   "version": "0.1.0",
-  "description": "Dynamic recruiting pipeline recalculation tool for CFB27 dynasty saves",
+  "description": "Dynamic conference realignment tool for CFB27 dynasty saves",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -15,8 +15,8 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.ball14.pipelinetool",
-    "productName": "Dynamic Recruiting Pipeline Tool",
+    "appId": "com.slappey.realignmenttool",
+    "productName": "Dynamic Conference Realignment Tool",
     "directories": {
       "output": "dist"
     },
