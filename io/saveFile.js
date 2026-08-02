@@ -39,12 +39,16 @@ const Franchise = require('madden-franchise');
 
 const TABLE_UNIQUE_IDS = {
   team: 3359508968,
+  conference: 3820706130,
+  teamsInConference: 2477738738,
+  franchise: 2226370608, // fro pullign unique id
+  seasonInfo: 3123991521, // for pullign year
+  //below this i shouldn't need
   schoolPipelineInfluenceList: 3284177001,
   schoolPipelineInfluence: 4261714800,
   player: 1612938518,
   coach: 1860529246,
-  franchise: 2226370608,
-  seasonInfo: 3123991521,
+  
 };
 
 async function openSave(savePath) {
@@ -94,6 +98,119 @@ async function readUserTeam(franchise) {
   return { teamIndex: userCoach.TeamIndex, displayName: teamRecord.DisplayName };
 }
 
+//my version of balla's read teams
+async function readTeamPrestige(franchise) {
+  console.log("reading");
+
+  const teamTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.team);
+  //await teamTable.readRecords("TeamIndex","DisplayName","TeamPrestige");
+  await teamTable.readRecords();
+
+  const teamsByIndex = [];
+
+  for (const teamRecord of teamTable.records) {
+    if (!teamRecord.DisplayName || teamRecord.TeamIndex === 255) continue; // skip placeholder rows
+    
+    teamsByIndex[teamRecord.TeamIndex] = {
+      displayName: teamRecord.DisplayName,
+      currentPrestige: teamRecord.TeamPrestige,
+      prestigeHistory: [],
+    };
+
+  };
+  console.log(teamsByIndex);
+  return teamsByIndex;
+
+}
+
+
+//readingConference data
+
+async function readConferences(franchise){
+  console.log("reading2");
+
+  const teamTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.team);
+  //await teamTable.readRecords("TeamIndex","DisplayName","TeamPrestige");
+  await teamTable.readRecords();
+  const teamTableId = teamTable.header.tableId;
+
+  const confTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.conference);
+  await confTable.readRecords();
+
+  const confData = [];
+
+  let i = 0;
+
+  
+  console.log("hi3");
+
+  //const listTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.teamsInConference);
+  //await listTable.readRecords();
+  //const listTableId = listTable.header.tableId;
+
+  for (const confRecord of confTable.records) {
+    if (!confRecord.Name) continue; // skip placeholder rows
+    
+
+    const membershipList = [];
+    
+    const listField = confRecord.getFieldByKey('TeamSlots');
+    const listRef = listField.referenceData; // { tableId, rowNumber }
+    console.log(confRecord.index);
+    console.log(listRef);
+    //if (!listRef || listRef.tableId !== listTableId) continue;
+    
+    const listTable = franchise.getTableById(listRef.tableId)
+    await listTable.readRecords();
+    const listRecord = listTable.records[listRef.rowNumber];
+    if (!listRecord) continue;
+
+    for (let j = 0; j < 50; j++) {
+      const field = listRecord.getFieldByKey(`Team${j}`);
+      if (!field) break; // field itself doesn't exist -- structure ends here
+      const ref = field.referenceData;
+      if (!ref || ref.tableId !== teamTableId) break;
+      membershipList.push(ref.rowNumber);
+      
+      //membershipList.push(ref.tableId);
+    }
+
+    
+
+    confData[i] = {
+      Name: confRecord.Name,
+      membershipRows: membershipList,
+      memberIDs: [],
+      memberRecords: [],
+      memberNames:[],
+    };
+    i+= 1;
+  };
+
+
+
+  //next thing I have to do is turn those row numbers into something more useful...
+  //although... .myabe that's a task for an engie function rather than a read funciton
+  console.log(confData.length);
+  for(let k = 0; k<confData.length; k++){
+    const membershipRows = confData[k].membershipRows;
+    console.log("hi5");
+    for(const num of membershipRows){
+      console.log("hi4");
+      const teamRecord  = teamTable.records[num];
+      confData[k].memberIDs.push(teamRecord.TeamIndex);
+      confData[k].memberRecords.push(teamRecord);
+      confData[k].memberNames.push(teamRecord.DisplayName);
+    }
+    
+
+  };
+
+  console.log(confData);
+  return confData;
+
+}
+
 /**
  * Reads the Team table (filtering out the handful of non-real placeholder
  * rows -- blank DisplayName or TeamIndex 255, the same sentinel pattern
@@ -124,9 +241,13 @@ async function readUserTeam(franchise) {
  *     pipelineInfluenceTable: <live table object, for reading/writing rows directly>,
  *   }
  */
+
 async function readTeamPipelineMapping(franchise) {
   const teamTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.team);
   await teamTable.readRecords();
+
+  
+  console.log("hi2");
 
   const listTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.schoolPipelineInfluenceList);
   await listTable.readRecords();
@@ -181,6 +302,7 @@ async function readTeamPipelineMapping(franchise) {
       rows4306,
     };
   }
+  //console.log(teamsByIndex)
 
   return { teamsByIndex, pipelineInfluenceTable };
 }
@@ -886,6 +1008,7 @@ module.exports = {
   TABLE_UNIQUE_IDS,
   openSave,
   readTeamPipelineMapping,
+  readTeamPrestige,
   readPlayers,
   readCoaches,
   readPipelineRow,
@@ -895,4 +1018,5 @@ module.exports = {
   readUserTeam,
   expandTeamPipelineSlots,
   shrinkTeamPipelineSlots,
+  readConferences,
 };

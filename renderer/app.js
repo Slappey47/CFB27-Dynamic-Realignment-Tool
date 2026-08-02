@@ -10,6 +10,7 @@ async function init() {
   teamColors = await window.api.getTeamColors();
   syncSlidersFromSettings();
   updatePresetLabel();
+  console.log("hi");
 }
 
 // ---- File selection (direct save file) ----
@@ -25,6 +26,7 @@ let savePath = null;
  * actually stop the save from loading.
  */
 function askFangToolStatus() {
+  /** 
   return new Promise((resolve) => {
     const modal = document.getElementById('fang-tool-modal');
     const btnYes = document.getElementById('btn-fang-yes');
@@ -46,7 +48,7 @@ function askFangToolStatus() {
     btnNo.addEventListener('click', onNo);
     btnNa.addEventListener('click', onNa);
     modal.classList.remove('hidden');
-  });
+  })*/;
 }
 
 document.getElementById('btn-select-save').addEventListener('click', async () => {
@@ -75,13 +77,13 @@ document.getElementById('btn-select-save').addEventListener('click', async () =>
 
 async function refreshSaveInfoBar() {
   const bar = document.getElementById('save-info-bar');
-  const logoImg = document.getElementById('save-info-logo');
+  //const logoImg = document.getElementById('save-info-logo');
   const swatchEl = document.getElementById('save-info-swatch');
   const textEl = document.getElementById('save-info-text');
 
   bar.classList.remove('hidden');
   textEl.textContent = 'Loading dynasty info\u2026';
-  logoImg.style.display = 'none';
+  //logoImg.style.display = 'none';
   swatchEl.style.display = 'none';
 
   try {
@@ -117,10 +119,10 @@ async function refreshSaveInfoBar() {
       const colors = teamColors[teamName];
       swatchEl.style.background = colors ? colors[0] : '#888888';
       swatchEl.style.display = 'inline-block';
-      const logosDirUrl = await window.PipelineMap.getLogosDirUrl();
-      logoImg.onload = () => { logoImg.style.display = 'inline-block'; swatchEl.style.display = 'none'; };
-      logoImg.onerror = () => { logoImg.style.display = 'none'; swatchEl.style.display = 'inline-block'; };
-      logoImg.src = `${logosDirUrl}/${encodeURIComponent(teamName)}.png`;
+      //const logosDirUrl = await window.PipelineMap.getLogosDirUrl();
+      //logoImg.onload = () => { logoImg.style.display = 'inline-block'; swatchEl.style.display = 'none'; };
+      //logoImg.onerror = () => { logoImg.style.display = 'none'; swatchEl.style.display = 'inline-block'; };
+      //logoImg.src = `${logosDirUrl}/${encodeURIComponent(teamName)}.png`;
     }
   } catch (err) {
     console.error('Could not load save info:', err);

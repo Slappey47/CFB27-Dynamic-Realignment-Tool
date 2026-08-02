@@ -2,16 +2,19 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const { defaultSettings, applyPreset, computeTeamPipelines, buildAcademyAssignment, PRESETS } = require('./engine/pipelineEngine');
+const { defaultSettings,recalculateMoves,moveSummary, validateMoves, setBaseline, setupTeams,performanceReview, executeMoves, sendApplications,reviewApplications,calculateMoves } = require('./engine/realignmentEngine');
+
 const {
   openSave,
   readTeamPipelineMapping,
   readPlayers,
   readCoaches,
+  readTeamPrestige,
   readPipelineRow,
   writeUpdatedSave,
   readDynastyCode,
   readCurrentSeason,
+  readConferences,
   readUserTeam,
 } = require('./io/saveFile');
 const { recordSnapshot } = require('./io/pipelineHistory');
@@ -107,18 +110,65 @@ ipcMain.handle('get-dynasty-code-for-save', async (event, { savePath }) => {
   const franchise = await openSave(savePath);
   return readDynastyCode(franchise);
 });
-ipcMain.handle('get-save-info', async (event, { savePath }) => {
+ipcMain.handle('get-save-info', async (event, { savePath}) => {
   const franchise = await openSave(savePath);
   const dynastyCode = await readDynastyCode(franchise);
   const season = await readCurrentSeason(franchise);
-  const userTeam = await readUserTeam(franchise);
+  const userTeam = await readUserTeam(franchise); // not sure i need this
 
   // Pipeline table capacity -- surfaced in the UI as a simple "used/total"
   // indicator. Cheap to compute (reuses the same mapping run-engine
   // already needs) and worth keeping visible given the table has a hard
   // fixed ceiling (confirmed 1500 rows) that row collisions and any future
   // shrink/expand activity both draw against.
-  let pipelineCapacity = null;
+  //let pipelineCapacity = null;
+
+
+
+
+  //this is for testing....
+  console.log("hi");
+  const teamsByIndex = await readTeamPrestige(franchise);
+  const confArray = await readConferences(franchise);
+
+  await setBaseline(teamsByIndex, confArray,season);
+  const settings2 = loadUserSettings();
+  console.log(settings2);
+  await setupTeams(settings2,teamsByIndex, confArray);
+  await performanceReview(settings2,teamsByIndex,confArray);
+  await sendApplications(settings2, teamsByIndex,confArray);
+  await reviewApplications(settings2, teamsByIndex,confArray);
+  // moves = Array();
+  let moves = await calculateMoves(settings2, teamsByIndex,confArray);
+  //console.log(moves);
+  let accepted = await executeMoves(teamsByIndex,confArray,moves);
+
+  //console.log(teamsByIndex);
+  
+  //console.log(confArray);
+  
+  console.log(accepted);
+  let valid = await validateMoves(moves, accepted);
+  console.log(moves);
+
+  
+  let i = 0;
+
+  while(valid<10&&i<10){
+    moves = await recalculateMoves(settings2, teamsByIndex,confArray,moves, accepted);
+    accepted = await executeMoves(teamsByIndex,confArray,moves);
+    valid = await validateMoves(moves, accepted);
+    i++;
+    console.log(moves);
+  };
+
+  const summary = await moveSummary(moves);
+  console.log(summary);
+
+
+
+
+  /** 
   try {
     const { teamsByIndex, pipelineInfluenceTable } = await readTeamPipelineMapping(franchise);
     const referencedRows = new Set();
@@ -130,8 +180,8 @@ ipcMain.handle('get-save-info', async (event, { savePath }) => {
     console.error('Could not compute pipeline capacity:', err);
     // Non-fatal -- the rest of the save info is still useful without it.
   }
-
-  return { dynastyCode, season, userTeam, pipelineCapacity };
+  */
+  return { dynastyCode, season, userTeam};
 });
 
 /**
@@ -142,37 +192,20 @@ ipcMain.handle('get-save-info', async (event, { savePath }) => {
  */
 ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   const franchise = await openSave(savePath);
-  const { teamsByIndex, pipelineInfluenceTable } = await readTeamPipelineMapping(franchise);
-  const playersByTeamIndex = await readPlayers(franchise);
-  const coachesByTeamIndex = await readCoaches(franchise);
+  const teamsByIndex = await readTeamPrestige(franchise);
+  const confArray = await readConferences(franchise);
 
-  // Academy Mode -- see academy_mode_spec.md. Only active when the
-  // setting is on; an empty Set means the per-team check below is always
-  // false, so this costs nothing when the feature is off.
-  const academyTeamSet = new Set(settings.academyMode ? (settings.academyTeams || []) : []);
+  const season = await readCurrentSeason(franchise);
 
-  // CONFIRMED BUG (2026-07-29): academy setup used to just call
-  // buildAcademyAssignment() every Apply until a team reached
-  // academyTargetCount real slots, with no memory of a PRIOR incomplete
-  // attempt's random selection. If a team needed more than one Apply to
-  // actually reach 42 real rows (write capacity limited that Apply, for
-  // any reason), each attempt picked a BRAND NEW random 42-region subset
-  // -- and any rows already written from an earlier attempt's different
-  // random selection were never cleaned up, just left behind. Confirmed
-  // live: Air Force ended up with "Wisconsin" stored 4 separate times at
-  // different values, "Arkansas" 3 times, etc. -- leftover debris from
-  // several different incomplete setup attempts, all still sitting in
-  // the save.
-  //
-  // Fix: setup must be ATOMIC. A team either goes from its current real
-  // count straight to academyTargetCount in ONE Apply, or isn't touched
-  // at all this Apply -- no partial, in-between state is ever written.
-  // That means checking, up front, whether there's actually enough spare
-  // capacity (unowned/reclaimable rows) to cover every academy team that
-  // still needs setup THIS Apply, before committing any of them to a
-  // setup pass. This doesn't retroactively clean up debris from BEFORE
-  // this fix existed -- that's a separate, one-time cleanup this project
-  // still needs to write. It only prevents new debris going forward.
+  await setBaseline(teamsByIndex, confArray,season);
+  await setupTeams(settings,teamsByIndex, confArray);
+  console.log(teamsByIndex);
+  console.log(confArray);
+
+  //const playersByTeamIndex = await readPlayers(franchise);
+  //const coachesByTeamIndex = await readCoaches(franchise);
+
+
   let spareCapacity = 0;
   {
     const referencedRows = new Set();
