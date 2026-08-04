@@ -1,6 +1,6 @@
 // comments here - this is my engine for realignment fucntions
 
-
+const { recordSnapshot } = require('../io/pipelineHistory');
 
 
 const { SCHOOL_COORDS, SCHOOL_CONF, haversineMiles } = require('../data/schoolCoordinates');
@@ -295,10 +295,10 @@ function reviewApplications(settings, teamsByIndex,confArray){
                 }
             }
         }
-        console.log(conf.Name);
+        //console.log(conf.Name);
         for(const q of conf.applicationStatus){
             if(q[1]!=0 &&q[1]!=100){
-                console.log(q);
+                //console.log(q);
             }
         };
     }
@@ -598,8 +598,26 @@ function moveSummary(moves){
                 summary.push(["Independent",move[4]]);
             }
         }
-    };
+    };/*
+    for(const sum of summary){
+        for( const team of teams){
+
+        };
+
+    };*/
     return summary;
+
+}
+
+function recordSnapshots(teamsbyIndex,confArray,season,dynastyCode,app){
+    for(const team of teamsbyIndex){
+        recordSnapshot(app,dynastyCode,season,team.displayName,team.prestigeHistory);
+    }
+    for(const conf of confArray){
+        recordSnapshot(app,dynastyCode,season,conf.Name,conf.applicationStatus);
+        recordSnapshot(app,dynastyCode,season,conf.Name+"Tenures",conf.tenures);
+    }
+
 
 }
 
@@ -615,4 +633,5 @@ module.exports = {
     validateMoves,
     recalculateMoves,
     moveSummary,
+    recordSnapshots,
 };

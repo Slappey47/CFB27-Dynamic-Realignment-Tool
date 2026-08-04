@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const { defaultSettings,recalculateMoves,moveSummary, validateMoves, setBaseline, setupTeams,performanceReview, executeMoves, sendApplications,reviewApplications,calculateMoves } = require('./engine/realignmentEngine');
+const { recordSnapshots, defaultSettings,recalculateMoves,moveSummary, validateMoves, setBaseline, setupTeams,performanceReview, executeMoves, sendApplications,reviewApplications,calculateMoves } = require('./engine/realignmentEngine');
 
 const {
   openSave,
@@ -116,71 +116,6 @@ ipcMain.handle('get-save-info', async (event, { savePath}) => {
   const season = await readCurrentSeason(franchise);
   const userTeam = await readUserTeam(franchise); // not sure i need this
 
-  // Pipeline table capacity -- surfaced in the UI as a simple "used/total"
-  // indicator. Cheap to compute (reuses the same mapping run-engine
-  // already needs) and worth keeping visible given the table has a hard
-  // fixed ceiling (confirmed 1500 rows) that row collisions and any future
-  // shrink/expand activity both draw against.
-  //let pipelineCapacity = null;
-
-
-
-
-  //this is for testing....
-  console.log("hi");
-  const teamsByIndex = await readTeamPrestige(franchise);
-  const confArray = await readConferences(franchise);
-
-  await setBaseline(teamsByIndex, confArray,season);
-  const settings2 = loadUserSettings();
-  console.log(settings2);
-  await setupTeams(settings2,teamsByIndex, confArray);
-  await performanceReview(settings2,teamsByIndex,confArray);
-  await sendApplications(settings2, teamsByIndex,confArray);
-  await reviewApplications(settings2, teamsByIndex,confArray);
-  // moves = Array();
-  let moves = await calculateMoves(settings2, teamsByIndex,confArray);
-  //console.log(moves);
-  let accepted = await executeMoves(teamsByIndex,confArray,moves);
-
-  //console.log(teamsByIndex);
-  
-  //console.log(confArray);
-  
-  console.log(accepted);
-  let valid = await validateMoves(moves, accepted);
-  console.log(moves);
-
-  
-  let i = 0;
-
-  while(valid<10&&i<10){
-    moves = await recalculateMoves(settings2, teamsByIndex,confArray,moves, accepted);
-    accepted = await executeMoves(teamsByIndex,confArray,moves);
-    valid = await validateMoves(moves, accepted);
-    i++;
-    console.log(moves);
-  };
-
-  const summary = await moveSummary(moves);
-  console.log(summary);
-
-
-
-
-  /** 
-  try {
-    const { teamsByIndex, pipelineInfluenceTable } = await readTeamPipelineMapping(franchise);
-    const referencedRows = new Set();
-    for (const info of Object.values(teamsByIndex)) {
-      for (const row of info.rows4306) referencedRows.add(row);
-    }
-    pipelineCapacity = { used: referencedRows.size, total: pipelineInfluenceTable.records.length };
-  } catch (err) {
-    console.error('Could not compute pipeline capacity:', err);
-    // Non-fatal -- the rest of the save info is still useful without it.
-  }
-  */
   return { dynastyCode, season, userTeam};
 });
 
@@ -194,129 +129,52 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   const franchise = await openSave(savePath);
   const teamsByIndex = await readTeamPrestige(franchise);
   const confArray = await readConferences(franchise);
+  const dynastyCode = await readDynastyCode(franchise);
 
   const season = await readCurrentSeason(franchise);
 
+
+
   await setBaseline(teamsByIndex, confArray,season);
-  await setupTeams(settings,teamsByIndex, confArray);
-  console.log(teamsByIndex);
-  console.log(confArray);
+  const settings2 = loadUserSettings();
+  //console.log(settings2);
+  await setupTeams(settings2,teamsByIndex, confArray);
+  await performanceReview(settings2,teamsByIndex,confArray);
+  await sendApplications(settings2, teamsByIndex,confArray);
+  await reviewApplications(settings2, teamsByIndex,confArray);
+  // moves = Array();
+  let moves = await calculateMoves(settings2, teamsByIndex,confArray);
+  //console.log(moves);
+  let accepted = await executeMoves(teamsByIndex,confArray,moves);
 
-  //const playersByTeamIndex = await readPlayers(franchise);
-  //const coachesByTeamIndex = await readCoaches(franchise);
+  //console.log(teamsByIndex);
+  
+  //console.log(confArray);
+  
+  //console.log(accepted);
+  let valid = await validateMoves(moves, accepted);
+  //console.log(moves);
 
+  
+  let i = 0;
 
-  let spareCapacity = 0;
-  {
-    const referencedRows = new Set();
-    for (const info of Object.values(teamsByIndex)) {
-      for (const row of info.rows4306) referencedRows.add(row);
-    }
-    for (let i = 0; i < pipelineInfluenceTable.records.length; i++) {
-      if (!referencedRows.has(i)) spareCapacity++;
-    }
-  }
-  let spareCapacityRemaining = spareCapacity;
+  while(valid<10&&i<10){
+    moves = await recalculateMoves(settings2, teamsByIndex,confArray,moves, accepted);
+    accepted = await executeMoves(teamsByIndex,confArray,moves);
+    valid = await validateMoves(moves, accepted);
+    i++;
+    //console.log(moves);
+  };
 
-  const results = {};
-  for (const [teamIndexStr, teamInfo] of Object.entries(teamsByIndex)) {
-    const teamIndex = Number(teamIndexStr);
-    const players = playersByTeamIndex[teamIndex] || [];
-    const coaches = coachesByTeamIndex[teamIndex] || {};
-    const prior = teamInfo.rows4306
-      .map((row) => readPipelineRow(pipelineInfluenceTable, row))
-      .filter(Boolean)
-      .filter((entry) => !(entry[0] === 'Unrecognized' && entry[2] === 0)); // strip known placeholder-slot noise
+  const summary = await moveSummary(moves);
+  //console.log(summary);
+  console.log("hi17");
+  console.log(typeof moves);
 
-    // ---- Academy Mode ----
-    // Checked BEFORE the `!prior.length` bail-out below, on purpose -- a
-    // team newly entering Academy Mode with very few (or, in principle,
-    // zero) real slots should still get set up, not silently skipped.
-    if (academyTeamSet.has(teamInfo.displayName)) {
-      const alreadySetUp = teamInfo.rows4306.length >= settings.academyTargetCount;
-
-      if (settings.academyExempt && alreadySetUp) {
-        // The whole point of "exempt": once set up, this team is
-        // completely excluded from every future run -- not recalculated,
-        // not rewritten. `after` mirrors `prior` so the preview correctly
-        // shows "no changes" instead of inventing a diff for a team
-        // we're deliberately not touching.
-        results[teamInfo.displayName] = {
-          teamIndex,
-          rows4306: teamInfo.rows4306,
-          prior,
-          after: prior,
-          coaches,
-          academyStatus: 'exempt',
-        };
-        continue;
-      }
-
-      // Needs (re)setup: either academyExempt is false (runs the real
-      // engine every season, just at the bigger target -- academyUniform
-      // is ignored in that case, per the spec), or it's true but this
-      // team hasn't reached academyTargetCount real slots yet (the
-      // one-time setup pass -- uniform tier, or a single varied
-      // real-engine snapshot).
-      //
-      // ATOMIC CHECK: this team needs (academyTargetCount - current real
-      // count) additional rows to complete setup in this one Apply. If
-      // spareCapacityRemaining can't cover that, skip setup entirely for
-      // this team THIS Apply -- leave it completely unchanged (mirror
-      // exempt's "after: prior" behavior) rather than writing a partial
-      // selection that would need cleanup later. spareCapacityRemaining
-      // is decremented as each academy team's need is provisionally
-      // reserved, so teams processed earlier in this same loop don't
-      // oversubscribe capacity that a later team also needs.
-      const rowsNeededForSetup = Math.max(0, settings.academyTargetCount - teamInfo.rows4306.length);
-      if (rowsNeededForSetup > spareCapacityRemaining) {
-        results[teamInfo.displayName] = {
-          teamIndex,
-          rows4306: teamInfo.rows4306,
-          prior,
-          after: prior,
-          coaches,
-          academyStatus: 'setup-deferred',
-          academySetupDeferredReason: `Needs ${rowsNeededForSetup} more free row(s) to complete Academy setup atomically; only ${spareCapacityRemaining} available this Apply. Skipped -- will retry once capacity allows, rather than writing a partial setup.`,
-        };
-        continue;
-      }
-      spareCapacityRemaining -= rowsNeededForSetup;
-
-      const after = (settings.academyExempt && settings.academyUniform)
-        ? buildAcademyAssignment(settings.academyUniformTier, settings.academyTargetCount)
-        : computeTeamPipelines(teamInfo.displayName, players, coaches, prior, regionCentroids, settings, settings.academyTargetCount);
-
-      results[teamInfo.displayName] = {
-        teamIndex,
-        rows4306: teamInfo.rows4306,
-        prior,
-        after,
-        coaches,
-        academyStatus: settings.academyExempt ? 'setup' : 'active',
-      };
-      continue;
-    }
-
-    if (!prior.length) continue;
-
-    // Ceiling for regular (non-academy) teams: never more than
-    // settings.maxPipelines, but can legitimately come back with fewer
-    // (computeTeamPipelines' zero-score filter). Whether Applying this
-    // means expanding (real signal supports more real slots than the
-    // team currently has) or shrinking (team currently has more real
-    // slots than the ceiling allows) happens automatically in
-    // writeUpdatedSave -- this call doesn't need to know or care which.
-    const after = computeTeamPipelines(teamInfo.displayName, players, coaches, prior, regionCentroids, settings, settings.maxPipelines);
-    results[teamInfo.displayName] = {
-      teamIndex,
-      rows4306: teamInfo.rows4306,
-      prior,
-      after,
-      coaches, // { HeadCoach: {name, pipeline, seasons}, OffensiveCoordinator: {...}, DefensiveCoordinator: {...} }
-    };
-  }
-  return results;
+  await recordSnapshots(teamsByIndex,confArray,season,dynastyCode,app);
+  //const results = {};
+ 
+  return moves;
 });
 
 /**

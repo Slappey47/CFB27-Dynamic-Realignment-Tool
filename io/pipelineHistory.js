@@ -45,7 +45,7 @@ function loadHistory(app) {
   try {
     return JSON.parse(fs.readFileSync(p, 'utf8'));
   } catch (err) {
-    console.error('Failed to parse pipeline-history.json, starting fresh:', err);
+    // console.error('Failed to parse pipeline-history.json, starting fresh:', err);
     return {};
   }
 }
@@ -81,10 +81,10 @@ function recordSnapshot(app, dynastyCode, season, teamName, afterEntries, meta =
   if (!history[dynastyCode]) history[dynastyCode] = {};
   if (!history[dynastyCode][teamName]) history[dynastyCode][teamName] = {};
 
-  const byRegion = {};
-  for (const [tier, region, value] of afterEntries) byRegion[region] = { tier, value };
+  //const toStore= {};
+  //for (const [tier, region, value] of afterEntries) toStore[region] = { tier, value };
 
-  history[dynastyCode][teamName][String(season)] = byRegion;
+  history[dynastyCode][teamName][String(season)] = afterEntries;;
 
   if (meta) {
     if (!history.__settingsMeta) history.__settingsMeta = {};

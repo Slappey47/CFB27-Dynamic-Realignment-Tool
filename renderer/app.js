@@ -6,7 +6,7 @@ let selectedTeams = new Set();
 
 async function init() {
   settings = await window.api.getSettings();
-  presets = await window.api.getPresets();
+  //presets = await window.api.getPresets();
   teamColors = await window.api.getTeamColors();
   syncSlidersFromSettings();
   updatePresetLabel();
@@ -370,21 +370,29 @@ document.getElementById('preview-color-scheme-toggle').addEventListener('change'
 // ---- Run engine ----
 
 document.getElementById('btn-run').addEventListener('click', async () => {
+  console.log("hi012");
   if (!savePath) {
+    console.log("hi-1");
     alert('Select a save file first.');
     return;
   }
   const btn = document.getElementById('btn-run');
   btn.textContent = 'Running\u2026';
   btn.disabled = true;
+  console.log("hi1");
   try {
     engineResults = await window.api.runEngine(savePath, settings);
+    console.log("hi12");
+    console.log(engineResults);
     selectedTeams = new Set();
-    renderPreview();
+    renderPreview(engineResults);
+    console.log("hi6");
   } finally {
     btn.textContent = 'Run engine';
     btn.disabled = false;
   }
+  console.log("hi3");
+
 });
 
 // ---- Preview rendering ----
@@ -403,7 +411,58 @@ function isTeamChanged(teamName) {
   return [...priorRegions].some((r) => !afterRegions.has(r)) || [...afterRegions].some((r) => !priorRegions.has(r));
 }
 
-function renderPreview() {
+function renderPreview(engineresults) {
+  const list = document.getElementById('preview-list');
+  const arr =[];
+  console.log("hi0");
+  
+
+
+  for (const result of engineresults) {
+    console.log("hi");
+    
+    
+    if(result[1]== null && result[3]== null){
+      arr.push(String("The "+result[0] + " has not made any moves")) ;
+
+    }
+    if(result[1]!= null && result[2]!= null){
+      arr.push(String("The "+result[0] + " has added "+result[1] + " and "+result[2]));
+
+    }else if(result[1]!= null){
+      arr.push(String("The "+result[0] + " has added "+result[1]));
+
+    }
+    if(result[3]!= null && result[4]!= null){
+      arr.push(String("The "+result[0] + " has expelled "+result[3] + " and "+result[4]));
+
+    }else if(result[3]!= null){
+      arr.push(String("The "+result[0] + " has expelled "+result[3]));
+
+    }
+    
+    
+  };
+  console.log(arr);
+
+  for(const val of arr){
+    const row = document.createElement('div');
+    row.className = 'team-row';
+
+    const nameCell = document.createElement('div');
+    nameCell.className = 'team-name';
+    const nameSpan = document.createElement('span');
+
+    nameCell.appendChild(nameSpan);
+
+    nameSpan.textContent = val;
+
+    row.append(nameCell);
+    list.appendChild(row);
+
+
+  };
+  /**
   const list = document.getElementById('preview-list');
   list.innerHTML = '';
   const search = document.getElementById('team-search').value.toLowerCase();
@@ -495,7 +554,7 @@ function renderPreview() {
     row.append(checkboxCell, nameCell, beforeCell, afterCell);
     list.appendChild(row);
   }
-  updateSelectedCount();
+  updateSelectedCount();*/
 }
 
 document.getElementById('team-search').addEventListener('input', renderPreview);
