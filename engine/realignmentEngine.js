@@ -1,6 +1,6 @@
 // comments here - this is my engine for realignment fucntions
 
-const { recordSnapshot } = require('../io/pipelineHistory');
+const { recordSnapshot, loadHistory } = require('../io/pipelineHistory');
 
 
 const { SCHOOL_COORDS, SCHOOL_CONF, haversineMiles } = require('../data/schoolCoordinates');
@@ -28,9 +28,9 @@ function defaultSettings() {
       };
 }
 
-function setBaseline(teamsByIndex,confArray,season){
+function setBaseline(teamsByIndex,confArray,season,settings){
     for(const team of teamsByIndex){
-        for(let i =0; i<5; i++){
+        for(let i =0; i<settings.prestigeAvgLength; i++){
             team.prestigeHistory.push(team.currentPrestige);
         };
     };
@@ -65,6 +65,41 @@ function setBaseline(teamsByIndex,confArray,season){
     };
 }
 
+function pullHistory(teamsByIndex,confArray,season,hist,dynastyCode,settings){
+    for(const team of teamsByIndex){
+        team.prestigeHistory.push(team.currentPrestige);
+        for(let i =1; i<settings.prestigeAvgLength; i++){
+            team.prestigeHistory.push(hist[dynastyCode][team.displayName][String(season-i)][i-1]);
+        };
+    };
+    for(const conf of confArray){
+        
+        conf.tenures = hist[dynastyCode][conf.Name+"Tenures"][String(season)];
+        for(let j=0;j<conf.memberRecords.length;j++){
+            const t = String(conf.memberRecords[j].DisplayName);
+            const c = SCHOOL_CONF[t][0];
+            const c2 = hist[dynastyCode][t+"Conf"][String(season)]
+            const ten = conf.tenures[j];
+            teamsByIndex[conf.memberRecords[j].TeamIndex].confName = conf.Name;
+            if(c == c2){
+                conf.tenures[j] += 1;
+                teamsByIndex[conf.memberRecords[j].TeamIndex].confTenure += 1;
+            } else{
+                conf.tenures[j] = 0;
+                teamsByIndex[conf.memberRecords[j].TeamIndex].confTenure = 0;
+
+            };
+        };
+       
+    };
+    for(const conf of confArray){
+         conf.applicationStatus = hist[dynastyCode][conf.Name][String(season)];
+    };
+
+}
+
+
+
 //establish interest in various conferences...
 //prestige average
 // i feel like I need to have other things here too...
@@ -75,7 +110,7 @@ function setupTeams(settings,teamsByIndex, confArray){
         let p = 0;
         let q =0;
         for(let i=0; i<settings.prestigeAvgLength; i++ ){
-            p+= (w - (settings.prestigedecay*i))*team.prestigeHistory[4-i];
+            p+= (w - (settings.prestigedecay*i))*team.prestigeHistory[i];
             q+= (w - (settings.prestigedecay*i));
         };
         team.prestigeAVG = p/q;
@@ -212,8 +247,8 @@ function sendApplications(settings, teamsByIndex,confArray){
             }
             i++;
         };
-        //console.log(team.displayName);
-        //console.log(team.confInterest);
+        console.log(team.displayName);
+        console.log(team.confInterest);
     };
 }
 
@@ -612,6 +647,7 @@ function moveSummary(moves){
 function recordSnapshots(teamsbyIndex,confArray,season,dynastyCode,app){
     for(const team of teamsbyIndex){
         recordSnapshot(app,dynastyCode,season,team.displayName,team.prestigeHistory);
+        recordSnapshot(app,dynastyCode,season,team.displayName+"Conf",team.confName);
     }
     for(const conf of confArray){
         recordSnapshot(app,dynastyCode,season,conf.Name,conf.applicationStatus);
@@ -634,4 +670,5 @@ module.exports = {
     recalculateMoves,
     moveSummary,
     recordSnapshots,
+    pullHistory,
 };

@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const { recordSnapshots, defaultSettings,recalculateMoves,moveSummary, validateMoves, setBaseline, setupTeams,performanceReview, executeMoves, sendApplications,reviewApplications,calculateMoves } = require('./engine/realignmentEngine');
+const { pullHistory, recordSnapshots, defaultSettings,recalculateMoves,moveSummary, validateMoves, setBaseline, setupTeams,performanceReview, executeMoves, sendApplications,reviewApplications,calculateMoves } = require('./engine/realignmentEngine');
 
 const {
   openSave,
@@ -130,13 +130,54 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   const teamsByIndex = await readTeamPrestige(franchise);
   const confArray = await readConferences(franchise);
   const dynastyCode = await readDynastyCode(franchise);
+  const userTeam = await readUserTeam(franchise);
 
   const season = await readCurrentSeason(franchise);
-
-
-
-  await setBaseline(teamsByIndex, confArray,season);
   const settings2 = loadUserSettings();
+
+
+  const hist = loadHistory(app);
+
+  try{
+    if (hist[dynastyCode][String(userTeam.displayName)][String(season)]!=undefined){
+      await deleteSeason(app, dynastyCode, season);
+  }
+
+  }catch{
+  }finally{
+    const hist = loadHistory(app);
+    if(hist=={}||Object.keys(hist) == 0||Object.keys(hist[dynastyCode]) == 0||Object.keys(hist[dynastyCode][String(userTeam.displayName)]) == 0){
+      console.log("hi");
+      await setBaseline(teamsByIndex, confArray,season,settings2);
+    }else{
+      await pullHistory(teamsByIndex, confArray,season,hist,dynastyCode,settings2);
+
+    }
+
+  }
+  
+
+
+/*
+  
+  if(hist=={}||Object.keys(hist[dynastyCode]) == 0||Object.keys(hist) == 0||Object.keys(hist[dynastyCode][String(userTeam.displayName)]) == 0){
+    console.log("hi");
+    await setBaseline(teamsByIndex, confArray,season,settings2);
+  }else if (hist[dynastyCode][String(userTeam.displayName)][String(season)]==undefined){// untested
+    await pullHistory(teamsByIndex, confArray,season,hist,dynastyCode,settings2);
+  }else{
+    await deleteSeason(app, dynastyCode, season);
+    if(hist=={}||Object.keys(hist[dynastyCode]) == 0||Object.keys(hist) == 0||Object.keys(hist[dynastyCode][String(userTeam.displayName)]) == 0){
+      await setBaseline(teamsByIndex, confArray,season,settings2);
+    }else{
+      await pullHistory(teamsByIndex, confArray,season,hist,dynastyCode,settings2);
+  }}*/
+
+
+  
+
+
+  
   //console.log(settings2);
   await setupTeams(settings2,teamsByIndex, confArray);
   await performanceReview(settings2,teamsByIndex,confArray);
@@ -168,8 +209,13 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
 
   const summary = await moveSummary(moves);
   //console.log(summary);
-  console.log("hi17");
-  console.log(typeof moves);
+  //console.log("hi17");
+  //console.log(typeof moves);
+
+
+  //console.log(teamsByIndex);
+  
+  //console.log(confArray);
 
   await recordSnapshots(teamsByIndex,confArray,season,dynastyCode,app);
   //const results = {};

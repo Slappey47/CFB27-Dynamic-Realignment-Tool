@@ -413,6 +413,7 @@ function isTeamChanged(teamName) {
 
 function renderPreview(engineresults) {
   const list = document.getElementById('preview-list');
+  list.replaceChildren();
   const arr =[];
   console.log("hi0");
   

@@ -194,9 +194,9 @@ async function readConferences(franchise){
   console.log(confData.length);
   for(let k = 0; k<confData.length; k++){
     const membershipRows = confData[k].membershipRows;
-    console.log("hi5");
+    //console.log("hi5");
     for(const num of membershipRows){
-      console.log("hi4");
+      //console.log("hi4");
       const teamRecord  = teamTable.records[num];
       confData[k].memberIDs.push(teamRecord.TeamIndex);
       confData[k].memberRecords.push(teamRecord);
