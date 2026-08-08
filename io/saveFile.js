@@ -73,8 +73,13 @@ async function readDynastyCode(franchise) {
  */
 async function readCurrentSeason(franchise) {
   const table = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.seasonInfo);
-  await table.readRecords(['CurrentSeasonYear']);
-  return table.records[0].CurrentSeasonYear;
+  //await table.readRecords(['CurrentSeasonYear']);
+  await table.readRecords();
+  if (table.records[0].CurrentStage== 'OffSeason'){
+    return table.records[0].CurrentSeasonYear;
+
+  }
+  return table.records[0].CurrentSeasonYear - 1;
 }
 
 /**

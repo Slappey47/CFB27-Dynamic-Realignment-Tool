@@ -6,10 +6,11 @@ let selectedTeams = new Set();
 
 async function init() {
   settings = await window.api.getSettings();
+  console.log(settings);
   //presets = await window.api.getPresets();
   teamColors = await window.api.getTeamColors();
   syncSlidersFromSettings();
-  updatePresetLabel();
+  //updatePresetLabel();
   console.log("hi");
 }
 
@@ -135,10 +136,44 @@ async function refreshSaveInfoBar() {
 const sliderIds = ['wRoster', 'wStar', 'wCoach', 'wGeo'];
 
 function syncSlidersFromSettings() {
+
+  document.getElementById(`slider-sPrestigeWeight`).value = settings.sPrestigeWeight;
+  document.getElementById(`num-sPrestigeWeight`).value = settings.sPrestigeWeight;
+
+  document.getElementById(`slider-sGeoWeight`).value = settings.sGeoWeight;
+  document.getElementById(`num-sGeoWeight`).value = settings.sGeoWeight;
+
+  document.getElementById(`slider-sTenureWeight`).value = settings.sTenureWeight;
+  document.getElementById(`num-sTenureWeight`).value = settings.sTenureWeight;
+
+  document.getElementById(`slider-sStabilityWeight`).value = settings.sconfStabilityWeight;
+  document.getElementById(`num-sStabilityWeight`).value = settings.sconfStabilityWeight;
+
+  document.getElementById(`slider-sconfSizeDesire`).value = settings.sconfSizeDesire;
+  document.getElementById(`num-sconfSizeDesire`).value = settings.sconfSizeDesire;
+
+  document.getElementById(`slider-sEvenDesire`).value = settings.sEvenDesire;
+  document.getElementById(`num-sEvenDesire`).value = settings.sEvenDesire;
+
+  document.getElementById(`slider-applicationProcessingLength`).value = settings.applicationProcessingLength;
+  document.getElementById(`num-applicationProcessingLength`).value = settings.applicationProcessingLength;
+  document.getElementById(`slider-prestigeHistory`).value = settings.prestigeAvgLength;
+  document.getElementById(`num-prestigeHistory`).value = settings.prestigeAvgLength;
+  document.getElementById(`slider-sexpediteFee`).value = settings.expediteFee;
+  document.getElementById(`num-sexpediteFee`).value = settings.expediteFee;
+
+  document.getElementById(`slider-moratoriumPeriod`).value = settings.moratoriumPeriod;
+  document.getElementById(`num-moratoriumPeriod`).value = settings.moratoriumPeriod;
+  document.getElementById('chk-ndlock').checked = settings.NDlock === 1;
+  document.getElementById(`chk-ndlock`).unchecked = settings.NDlock === 0;
+
+  /*
+
   for (const id of sliderIds) {
     document.getElementById(`slider-${id}`).value = settings[id];
     document.getElementById(`num-${id}`).value = settings[id].toFixed(2);
   }
+  
   document.getElementById('chk-hc').checked = settings.coachInclude.HeadCoach;
   document.getElementById('chk-oc').checked = settings.coachInclude.OffensiveCoordinator;
   document.getElementById('chk-dc').checked = settings.coachInclude.DefensiveCoordinator;
@@ -176,7 +211,7 @@ function syncSlidersFromSettings() {
   document.getElementById('history-color-scheme-toggle').value = scheme;
   document.getElementById('preview-color-scheme-toggle').value = scheme;
 
-  checkWeightSum();
+  checkWeightSum();*/
 }
 
 function checkWeightSum() {
@@ -254,7 +289,7 @@ function bindSliderNumberPair(sliderId, numId, onChange) {
     onChange(v);
   });
 }
-
+/*
 for (const id of sliderIds) {
   bindSliderNumberPair(`slider-${id}`, `num-${id}`, (v) => {
     settings[id] = v;
@@ -262,7 +297,7 @@ for (const id of sliderIds) {
     updatePresetLabel();
     window.api.saveSettings(settings);
   });
-}
+}*/
 
 document.querySelectorAll('.preset-btn').forEach((btn) => {
   btn.addEventListener('click', async () => {
@@ -272,10 +307,12 @@ document.querySelectorAll('.preset-btn').forEach((btn) => {
     window.api.saveSettings(settings);
   });
 });
+/*
+//document.getElementById('chk-hc').addEventListener('change', (e) => { settings.coachInclude.HeadCoach = e.target.checked; window.api.saveSettings(settings); });
+//document.getElementById('chk-oc').addEventListener('change', (e) => { settings.coachInclude.OffensiveCoordinator = e.target.checked; window.api.saveSettings(settings); });
+//document.getElementById('chk-dc').addEventListener('change', (e) => { settings.coachInclude.DefensiveCoordinator = e.target.checked; window.api.saveSettings(settings); });
 
-document.getElementById('chk-hc').addEventListener('change', (e) => { settings.coachInclude.HeadCoach = e.target.checked; window.api.saveSettings(settings); });
-document.getElementById('chk-oc').addEventListener('change', (e) => { settings.coachInclude.OffensiveCoordinator = e.target.checked; window.api.saveSettings(settings); });
-document.getElementById('chk-dc').addEventListener('change', (e) => { settings.coachInclude.DefensiveCoordinator = e.target.checked; window.api.saveSettings(settings); });
+
 
 bindSliderNumberPair('slider-coachWeightHC', 'num-coachWeightHC', (v) => {
   settings.coachWeight.HeadCoach = v;
@@ -289,6 +326,56 @@ bindSliderNumberPair('slider-coachWeightDC', 'num-coachWeightDC', (v) => {
   settings.coachWeight.DefensiveCoordinator = v;
   window.api.saveSettings(settings);
 });
+
+*/
+
+bindSliderNumberPair('slider-sPrestigeWeight', 'num-sPrestigeWeight', (v) => {
+  settings.sPrestigeWeight = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-sGeoWeight', 'num-sGeoWeight', (v) => {
+  settings.sGeoWeight = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-sTenureWeight', 'num-sTenureWeight', (v) => {
+  settings.sTenureWeight = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-sStabilityWeight', 'num-sStabilityWeight', (v) => {
+  settings.sStabilityWeight = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-sconfSizeDesire', 'num-sconfSizeDesire', (v) => {
+  settings.sconfSizeDesire = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-sEvenDesire', 'num-sEvenDesire', (v) => {
+  settings.sEvenDesire = v;
+  window.api.saveSettings(settings);
+});
+
+bindSliderNumberPair('slider-applicationProcessingLength', 'num-applicationProcessingLength', (v) => {
+  settings.applicationProcessingLength = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-prestigeHistory', 'num-prestigeHistory', (v) => {
+  settings.prestigeHistory = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-sexpediteFee', 'num-sexpediteFee', (v) => {
+  settings.sexpediteFee = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-moratoriumPeriod', 'num-moratoriumPeriod', (v) => {
+  settings.moratoriumPeriod = v;
+  window.api.saveSettings(settings);
+});
+
+
+document.getElementById('chk-ndlock').addEventListener('change', (e) => { settings.NDlock = e.target.checked ? 1 : 0; window.api.saveSettings(settings); });
+
+
+/*
 
 document.getElementById('select-ramp-mode').addEventListener('change', (e) => { settings.coachRampMode = e.target.value; window.api.saveSettings(settings); });
 bindSliderNumberPair('slider-maxPipelines', 'num-maxPipelines', (v) => {
@@ -342,7 +429,7 @@ bindSliderNumberPair('slider-geoRadius', 'num-geoRadius', (v) => {
   settings.geoRadius = Math.round(v);
   window.api.saveSettings(settings);
 });
-
+*/
 // ---- Map color scheme (team colors vs. the game's own 1-5 pin styling) ----
 
 function applyMapColorScheme(scheme) {
@@ -365,7 +452,7 @@ function applyMapColorScheme(scheme) {
 }
 document.getElementById('map-color-scheme-toggle').addEventListener('change', (e) => applyMapColorScheme(e.target.value));
 document.getElementById('history-color-scheme-toggle').addEventListener('change', (e) => applyMapColorScheme(e.target.value));
-document.getElementById('preview-color-scheme-toggle').addEventListener('change', (e) => applyMapColorScheme(e.target.value));
+//document.getElementById('preview-color-scheme-toggle').addEventListener('change', (e) => applyMapColorScheme(e.target.value));
 
 // ---- Run engine ----
 
@@ -558,8 +645,8 @@ function renderPreview(engineresults) {
   updateSelectedCount();*/
 }
 
-document.getElementById('team-search').addEventListener('input', renderPreview);
-document.getElementById('chk-changed-only').addEventListener('change', renderPreview);
+//document.getElementById('team-search').addEventListener('input', renderPreview);
+//document.getElementById('chk-changed-only').addEventListener('change', renderPreview);
 
 // ---- Map modal ----
 
@@ -799,7 +886,7 @@ function renderSeasonChangesSummary(currentTiersByRegion, prevTiersByRegion, ele
   `;
 }
 
-document.getElementById('btn-open-history').addEventListener('click', openHistoryModal);
+//document.getElementById('btn-open-history').addEventListener('click', openHistoryModal);
 document.getElementById('history-team-select').addEventListener('change', refreshHistorySeasonRange);
 document.getElementById('history-season-slider').addEventListener('input', renderHistoryMapForSelection);
 document.getElementById('btn-close-history').addEventListener('click', () => {
@@ -835,7 +922,7 @@ document.getElementById('btn-clear-history-dynasty').addEventListener('click', a
   await window.api.deleteHistoryDynasty(dynastyCode);
   await openHistoryModal(); // will now show the "no history yet" empty state
 });
-
+/*
 document.getElementById('chk-select-all').addEventListener('change', (e) => {
   // Exempt academy teams have nothing to apply (after mirrors prior) --
   // selecting them is a harmless but pointless write. Select All skips
@@ -844,7 +931,7 @@ document.getElementById('chk-select-all').addEventListener('change', (e) => {
   if (e.target.checked) selectedTeams = new Set(teamNames);
   else selectedTeams = new Set();
   renderPreview();
-});
+});*/
 
 function updateSelectedCount() {
   document.getElementById('selected-count').textContent = `${selectedTeams.size} team(s) selected`;
@@ -917,7 +1004,7 @@ function formatApplySummary(result) {
 }
 
 // ---- Apply ----
-
+/**
 document.getElementById('btn-apply').addEventListener('click', async () => {
   const confirmed = confirm(
     `This will write a brand new save file copy with recomputed pipeline values for ${selectedTeams.size} team(s). ` +
@@ -967,5 +1054,6 @@ document.getElementById('btn-apply').addEventListener('click', async () => {
     ${result.historyWarning ? `<div class="warning">${result.historyWarning}</div>` : ''}
   `;
 });
+*/
 
 init();

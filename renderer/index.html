@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Dynamic Recruiting Pipeline Tool</title>
+<title>Dynamic Conference Realignment Tool</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -29,39 +29,87 @@
       <h2>2. Settings</h2>
       <p class="hint">Every slider, number box, and checkbox here saves automatically -- reopening the tool later picks up right where you left off, no need to redo a custom setup each time.</p>
 
-      <div class="preset-row">
+      <!--<div class="preset-row">
         <button class="btn preset-btn" data-preset="rosterDriven">Roster-driven</button>
         <button class="btn preset-btn" data-preset="blueChipFocused">Blue-chip focused</button>
         <button class="btn preset-btn" data-preset="coachLegacy">Coach-legacy</button>
         <button class="btn preset-btn" data-preset="grounded">Grounded</button>
         <span id="preset-label" class="preset-label">Custom</span>
-      </div>
+      </div>-->
+
+      <h4>Realignment Factors
+      </h4>
 
       <div class="sliders">
-        <label class="slider-row">
-          <span>Roster composition</span>
-          <input type="range" id="slider-wRoster" min="0" max="1" step="0.01" />
-          <input type="number" id="num-wRoster" min="0" max="1" step="0.01" class="weight-num" />
-        </label>
-        <label class="slider-row">
-          <span>Star-weighted quality</span>
-          <input type="range" id="slider-wStar" min="0" max="1" step="0.01" />
-          <input type="number" id="num-wStar" min="0" max="1" step="0.01" class="weight-num" />
-        </label>
-        <label class="slider-row">
-          <span>Coach pipeline</span>
-          <input type="range" id="slider-wCoach" min="0" max="1" step="0.01" />
-          <input type="number" id="num-wCoach" min="0" max="1" step="0.01" class="weight-num" />
+         <label class="slider-row">
+          <span>Prestige</span>
+          <input type="range" id="slider-sPrestigeWeight" min="0" max="300" step="5" />
+          <input type="number" id="num-sPrestigeWeight" min="0" max="300" step="5" class="weight-num" />
         </label>
         <label class="slider-row">
           <span>Geography</span>
-          <input type="range" id="slider-wGeo" min="0" max="1" step="0.01" />
-          <input type="number" id="num-wGeo" min="0" max="1" step="0.01" class="weight-num" />
+          <input type="range" id="slider-sGeoWeight" min="0" max="300" step="5" />
+          <input type="number" id="num-sGeoWeight" min="0" max="300" step="5" class="weight-num" />
         </label>
-        <div id="weight-sum-warning" class="warning hidden">Weights should sum to 1.0 &mdash; currently <span id="weight-sum-value"></span></div>
-      </div>
+        <label class="slider-row">
+          <span>Tenure</span>
+          <input type="range" id="slider-sTenureWeight" min="0" max="300" step="5" />
+          <input type="number" id="num-sTenureWeight" min="0" max="300" step="5" class="weight-num" />
+        </label>
+        <label class="slider-row">
+          <span>Stability</span>
+          <input type="range" id="slider-sStabilityWeight" min="0" max="300" step="5" />
+          <input type="number" id="num-sStabilityWeight" min="0" max="300" step="5" class="weight-num" />
+        </label>
+        <label class="slider-row">
+          <span>Conference Size</span>
+          <input type="range" id="slider-sconfSizeDesire" min="0" max="300" step="5" />
+          <input type="number" id="num-sconfSizeDesire" min="0" max="300" step="5" class="weight-num" />
+        </label>
+        <label class="slider-row">
+          <span>Even Conferences</span>
+          <input type="range" id="slider-sEvenDesire" min="0" max="300" step="5" />
+          <input type="number" id="num-sEvenDesire" min="0" max="300" step="5" class="weight-num" />
+        </label>
 
-      <details class="advanced">
+        <h4>Realignment Pace
+      </h4>
+      <div class="sliders">
+         <label class="slider-row">
+          <span>Process Length</span>
+          <input type="range" id="slider-applicationProcessingLength" min="0" max="10" step="1" />
+          <input type="number" id="num-applicationProcessingLength" min="0" max="10" step="1" class="weight-num" />
+        </label>
+        <label class="slider-row">
+          <span>Prestige History</span>
+          <input type="range" id="slider-prestigeHistory" min="0" max="10" step="1" />
+          <input type="number" id="num-prestigeHistory" min="0" max="10" step="1" class="weight-num" />
+        </label>
+        <label class="slider-row">
+          <span>Expedited Process</span>
+          <input type="range" id="slider-sexpediteFee" min="0" max="300" step="5" />
+          <input type="number" id="num-sexpediteFee" min="0" max="300" step="5" class="weight-num" />
+        </label>
+
+
+
+      <h4>Miscellaneous
+      </h4>
+      <div class="sliders">
+         <label class="slider-row">
+          <span>Moratorium Period</span>
+          <input type="range" id="slider-moratoriumPeriod" min="0" max="5" step="1" />
+          <input type="number" id="num-moratoriumPeriod" min="0" max="5" step="1" class="weight-num" />
+        </label>
+      </div>
+      <div class="sub-settings">
+          <label class="checkbox-row"><input type="checkbox" id="chk-ndlock" /> Notre Dame Lock</label>
+
+
+
+        
+
+      <!--<details class="advanced">
         <summary>Advanced: coach &amp; geography detail</summary>
         <div class="sub-settings">
           <label class="checkbox-row"><input type="checkbox" id="chk-hc" /> Include Head Coach</label>
@@ -150,45 +198,41 @@
             <p class="hint experimental-hint">Shrink and expand mechanics are confirmed working at the file level and in-game (see the standalone shrink/hardcap/academy test scripts). The combined flow through this app's own Apply button has <strong>not yet been verified end-to-end</strong> -- test on a disposable copy of your save first.</p>
           </div>
         </div>
-      </details>
+      </details> -->
 
       <button id="btn-run" class="btn btn-primary btn-large">Run engine</button>
     </section>
 
     <!-- STEP 3: Preview -->
     <section class="panel panel-wide" id="panel-preview">
-      <h2>3. Preview changes</h2>
+      <h2>3. Review changes</h2>
       <div class="preview-toolbar">
-        <input type="text" id="team-search" placeholder="Search teams&hellip;" />
-        <label class="checkbox-row"><input type="checkbox" id="chk-changed-only" /> Changed only</label>
-        <label class="checkbox-row"><input type="checkbox" id="chk-select-all" /> Select all</label>
-        <label class="color-scheme-toggle">
-          Colors
-          <select id="preview-color-scheme-toggle">
-            <option value="team">Team colors</option>
-            <option value="game">Game style (1-5)</option>
-          </select>
-        </label>
-        <span id="selected-count" class="hint"></span>
+        <span>This tool does not edit your save file. Use the in-game custom conferences menu to apply changes.</span>
       </div>
       <div id="preview-list" class="preview-list"></div>
     </section>
 
-    <!-- STEP 4: Apply -->
+    
+
+    <!-- STEP 4: Apply 
     <section class="panel" id="panel-apply">
       <h2>4. Apply</h2>
       <p class="hint">This writes a brand new save file copy with the recomputed values. Your original save is never modified &mdash; not even opened in write mode.</p>
       <button id="btn-apply" class="btn btn-danger btn-large" disabled>Apply selected changes&hellip;</button>
       <div id="apply-result" class="apply-result hidden"></div>
     </section>
+    -->
 
-    <!-- History -->
+    <!-- History 
     <section class="panel" id="panel-history">
       <h2>History</h2>
       <p class="hint">See how a team's pipeline footprint has changed across every season you've applied so far.</p>
       <button id="btn-open-history" class="btn btn-primary">View history&hellip;</button>
     </section>
   </main>
+  -->
+
+  
 
   <!-- Map modal -->
   <div id="map-modal" class="map-modal hidden">

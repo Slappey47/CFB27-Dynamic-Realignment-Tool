@@ -32,16 +32,47 @@ const LOGOS_DIR = app.isPackaged
 
 const SETTINGS_PATH = () => path.join(app.getPath('userData'), 'pipeline-tool-settings.json');
 
+function applySlidersToSettings(settings3){
+  settings3.prestigedecay = 1 / settings3.prestigeAvgLength;
+
+  settings3.confTenureWeight = settings3.dConfTenureWeight * settings3.sTenureWeight / 100;
+  settings3.teamTenureWeight = settings3.dteamTenureWeight * settings3.sTenureWeight / 100;
+  settings3.confPrestigeWeight = settings3.dconfPrestigeWeight * settings3.sPrestigeWeight / 100;
+  settings3.teamPrestigeWeight = settings3.dteamPrestigeWeight * settings3.sPrestigeWeight / 100;
+  settings3.confGeoWeight = settings3.dconfGeoWeight * settings3.sGeoWeight / 100;
+  settings3.teamGeoWeight = settings3.dteamGeoWeight * settings3.sGeoWeight / 100;
+
+  settings3.confSizeDesire = settings3.dconfSizeDesire * settings3.sconfSizeDesire / 100;
+  settings3.evenDesire = settings3.dEvenDesire * settings3.sEvenDesire / 100;
+  settings3.confStabilityWeight = settings3.dconfStabilityWeight * settings3.sconfStabilityWeight / 100;
+
+  settings3.expediteFee = settings3.dexpediteFee * settings3.sexpediteFee / 100;
+
+  settings3.inviteThresholdBaseline = settings3.dinviteThresholdBaseline + settings3.confStabilityWeight;
+  settings3.expelThresholdBaseline = settings3.dexpelThresholdBaseline + settings3.confStabilityWeight; 
+
+  return settings3;
+
+}
+
 function loadUserSettings() {
+  let settings3 ={};
   try {
     const raw = fs.readFileSync(SETTINGS_PATH(), 'utf8');
-    return { ...defaultSettings(), ...JSON.parse(raw) };
+    settings3 = { ...defaultSettings(), ...JSON.parse(raw) };
   } catch {
-    return defaultSettings();
+    settings3 = defaultSettings();
   }
+
+  applySlidersToSettings(settings3);
+
+
+  return settings3;
 }
 
 function saveUserSettings(settings) {
+  applySlidersToSettings(settings);
+
   fs.mkdirSync(path.dirname(SETTINGS_PATH()), { recursive: true });
   fs.writeFileSync(SETTINGS_PATH(), JSON.stringify(settings, null, 2));
 }
@@ -136,6 +167,9 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   const settings2 = loadUserSettings();
 
 
+  console.log(season);
+
+
   const hist = loadHistory(app);
 
   try{
@@ -150,7 +184,11 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
       console.log("hi");
       await setBaseline(teamsByIndex, confArray,season,settings2);
     }else{
+      try{
       await pullHistory(teamsByIndex, confArray,season,hist,dynastyCode,settings2);
+      }catch{
+        await setBaseline(teamsByIndex, confArray,season,settings2);
+      }
 
     }
 
