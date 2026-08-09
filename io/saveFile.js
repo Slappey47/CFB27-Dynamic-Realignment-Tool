@@ -105,7 +105,7 @@ async function readUserTeam(franchise) {
 
 //my version of balla's read teams
 async function readTeamPrestige(franchise) {
-  console.log("reading");
+  //console.log("reading");
 
   const teamTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.team);
   //await teamTable.readRecords("TeamIndex","DisplayName","TeamPrestige");
@@ -123,7 +123,7 @@ async function readTeamPrestige(franchise) {
     };
 
   };
-  console.log(teamsByIndex);
+  //console.log(teamsByIndex);
   return teamsByIndex;
 
 }
@@ -132,7 +132,7 @@ async function readTeamPrestige(franchise) {
 //readingConference data
 
 async function readConferences(franchise){
-  console.log("reading2");
+  //console.log("reading2");
 
   const teamTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.team);
   //await teamTable.readRecords("TeamIndex","DisplayName","TeamPrestige");
@@ -147,7 +147,7 @@ async function readConferences(franchise){
   let i = 0;
 
   
-  console.log("hi3");
+  //console.log("hi3");
 
   //const listTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.teamsInConference);
   //await listTable.readRecords();
@@ -161,8 +161,8 @@ async function readConferences(franchise){
     
     const listField = confRecord.getFieldByKey('TeamSlots');
     const listRef = listField.referenceData; // { tableId, rowNumber }
-    console.log(confRecord.index);
-    console.log(listRef);
+    //console.log(confRecord.index);
+    //console.log(listRef);
     //if (!listRef || listRef.tableId !== listTableId) continue;
     
     const listTable = franchise.getTableById(listRef.tableId)
@@ -211,7 +211,7 @@ async function readConferences(franchise){
 
   };
 
-  console.log(confData);
+  //console.log(confData);
   return confData;
 
 }
@@ -252,7 +252,7 @@ async function readTeamPipelineMapping(franchise) {
   await teamTable.readRecords();
 
   
-  console.log("hi2");
+  //console.log("hi2");
 
   const listTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.schoolPipelineInfluenceList);
   await listTable.readRecords();

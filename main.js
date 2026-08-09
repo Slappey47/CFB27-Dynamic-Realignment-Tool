@@ -170,7 +170,76 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   console.log(season);
 
 
-  const hist = loadHistory(app);
+  let hist = loadHistory(app);
+
+
+  let arr =[];
+
+
+  
+
+  
+
+  try{
+    arr = Object.keys(hist[dynastyCode][String(userTeam.displayName)]);
+     
+  }catch{
+    //console.log("caught");
+    
+  }
+
+  let q = 0;
+  for(const sea of arr){
+    arr[q]= parseFloat(sea);
+    q++;
+  }
+
+  arr.sort((a, b) => a - b);
+
+
+  let n = 0;
+  let s = 0;
+
+
+  for(const sea of arr){
+    if(sea==parseFloat(season)){
+      s= 1;
+    }
+    if(sea<parseFloat(season)){
+      n++;
+    }
+  }
+
+
+  //console.log(arr);
+  //console.log(s);
+  //console.log(n);
+
+  let baselineSeason = 0;
+
+
+  if(s == 1){
+    await deleteSeason(app, dynastyCode, season);
+    hist = loadHistory(app);
+  }
+  if(n==0){
+    await setBaseline(teamsByIndex, confArray,season,settings2);
+    baselineSeason = parseFloat(season);
+    //console.log("set basline")
+
+  }else{
+    await pullHistory(teamsByIndex, confArray,String(arr[n-1]),hist,dynastyCode,settings2,season);
+    baselineSeason = arr[0];
+
+  }
+
+
+
+  
+  //throw new Error();
+
+
+  /*
 
   try{
     if (hist[dynastyCode][String(userTeam.displayName)][String(season)]!=undefined){
@@ -193,7 +262,7 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
     }
 
   }
-  
+  */
 
 
 /*
@@ -222,17 +291,12 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   await sendApplications(settings2, teamsByIndex,confArray);
   await reviewApplications(settings2, teamsByIndex,confArray);
   // moves = Array();
-  let moves = await calculateMoves(settings2, teamsByIndex,confArray);
-  //console.log(moves);
+  let moves = await calculateMoves(settings2, teamsByIndex,confArray, baselineSeason, season);
+  
   let accepted = await executeMoves(teamsByIndex,confArray,moves);
 
-  //console.log(teamsByIndex);
-  
-  //console.log(confArray);
-  
-  //console.log(accepted);
   let valid = await validateMoves(moves, accepted);
-  //console.log(moves);
+  
 
   
   let i = 0;

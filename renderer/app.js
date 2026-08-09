@@ -159,8 +159,8 @@ function syncSlidersFromSettings() {
   document.getElementById(`num-applicationProcessingLength`).value = settings.applicationProcessingLength;
   document.getElementById(`slider-prestigeHistory`).value = settings.prestigeAvgLength;
   document.getElementById(`num-prestigeHistory`).value = settings.prestigeAvgLength;
-  document.getElementById(`slider-sexpediteFee`).value = settings.expediteFee;
-  document.getElementById(`num-sexpediteFee`).value = settings.expediteFee;
+  document.getElementById(`slider-sexpediteFee`).value = settings.sexpediteFee;
+  document.getElementById(`num-sexpediteFee`).value = settings.sexpediteFee;
 
   document.getElementById(`slider-moratoriumPeriod`).value = settings.moratoriumPeriod;
   document.getElementById(`num-moratoriumPeriod`).value = settings.moratoriumPeriod;
@@ -342,7 +342,7 @@ bindSliderNumberPair('slider-sTenureWeight', 'num-sTenureWeight', (v) => {
   window.api.saveSettings(settings);
 });
 bindSliderNumberPair('slider-sStabilityWeight', 'num-sStabilityWeight', (v) => {
-  settings.sStabilityWeight = v;
+  settings.sconfStabilityWeight = v;
   window.api.saveSettings(settings);
 });
 bindSliderNumberPair('slider-sconfSizeDesire', 'num-sconfSizeDesire', (v) => {
@@ -505,12 +505,17 @@ function renderPreview(engineresults) {
   //console.log("hi0");
   const arr2 =[];
   const arr3 = []
-  for(const x of engineResults.summary){
+  for(const x of engineresults.summary){
     if(x[0]=="Independent"){
       arr3.push(x[1]);
     }
     arr2.push(x[1]);
   }
+  console.log("arr2");
+  console.log(arr2);
+  console.log("arr3");
+  console.log(arr3);
+
 
 
 
@@ -519,7 +524,7 @@ function renderPreview(engineresults) {
     row.className = 'team-row';
     const span1 = document.createElement('span');
     span1.textContent = result[0];
-    span1.className = 'team-name';
+    //span1.className = 'team-name';
     row.appendChild(span1);
     if(result[1]!= null && result[2]!= null&& result[3]!= null && result[4]!= null){
       
@@ -577,34 +582,69 @@ function renderPreview(engineresults) {
   probation.sort((a,b)=>{return a[2]-b[2];});
   interested.sort((a,b)=>{return b[1]-a[1];});
   probation.sort((a,b)=>{return a[1]-b[1];});
-  //console.log(interested);
-  //console.log(probation);
+  console.log(interested);
+  console.log("probation");
+  console.log(probation);
 
-  if(interested.length > 0){
+  let i = 0;
+  let p = 0;
+
+  for(const r of interested){
+      if(arr2.includes(r[0])){
+      i++;}
+    }
+  for(const r of probation){
+      if(arr2.includes(r[0])){
+      p++;}
+    }
+
+  
+
+  if(interested.length - i > 0){
     const span3 = document.createElement('span');
     span3.innerHTML += String("Interest<br /><br />");
     for(const r of interested){
-      if(arr2.includes(r[1])==false){
+      if(arr2.includes(r[0])==false){
       span3.innerHTML += String(r[0]+"-Level "+String(r[1])+"<br />");}
     }
     row.appendChild(span3);
 
   }
-  if(probation.length > 0){
+  if(probation.length - p > 0){
     const span3 = document.createElement('span');
     span3.innerHTML += String("Probation<br /><br />");
     for(const r of probation){
-      if(arr2.includes(r[1])==false){
+      if(arr2.includes(r[0])==false){
       span3.innerHTML += String(r[0]+"-Level "+String(100-r[1])+"<br />");}
     }
     row.appendChild(span3);
 
   }
-
+ 
 
 
   list.appendChild(row);
 }
+if(arr3.length > 0){
+  const row = document.createElement('div');
+    row.className = 'team-row';
+    const span1 = document.createElement('span');
+    span1.textContent = "New Independents";
+    //span1.className = 'team-name';
+    row.appendChild(span1);
+    
+    
+    for(const r of arr3){
+      const span3 = document.createElement('span');
+      span3.innerHTML = String(r);
+      row.appendChild(span3);
+      
+    }
+  list.appendChild(row);
+
+  }
+
+
 }
 /*
 
