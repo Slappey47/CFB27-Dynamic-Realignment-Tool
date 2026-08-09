@@ -24,8 +24,14 @@
       </div>
     </section>
 
+    <section class="panel" id="panel-files">
+      <h2>3. Run Engine </h2>
+      <button id="btn-run" class="btn btn-primary btn-large">Run engine</button>
+
+    </section>
+
     <!-- STEP 2: Settings -->
-    <section class="panel" id="panel-settings">
+    <section class="panel panel-left" id="panel-settings">
       <h2>2. Settings</h2>
       <p class="hint">Every slider, number box, and checkbox here saves automatically -- reopening the tool later picks up right where you left off, no need to redo a custom setup each time.</p>
 
@@ -77,16 +83,16 @@
       <div class="sliders">
          <label class="slider-row">
           <span>Process Length</span>
-          <input type="range" id="slider-applicationProcessingLength" min="0" max="10" step="1" />
-          <input type="number" id="num-applicationProcessingLength" min="0" max="10" step="1" class="weight-num" />
+          <input type="range" id="slider-applicationProcessingLength" min="1" max="10" step="1" />
+          <input type="number" id="num-applicationProcessingLength" min="1" max="10" step="1" class="weight-num" />
         </label>
         <label class="slider-row">
           <span>Prestige History</span>
-          <input type="range" id="slider-prestigeHistory" min="0" max="10" step="1" />
-          <input type="number" id="num-prestigeHistory" min="0" max="10" step="1" class="weight-num" />
+          <input type="range" id="slider-prestigeHistory" min="1" max="10" step="1" />
+          <input type="number" id="num-prestigeHistory" min="1" max="10" step="1" class="weight-num" />
         </label>
         <label class="slider-row">
-          <span>Expedited Process</span>
+          <span>Expedite Fees</span>
           <input type="range" id="slider-sexpediteFee" min="0" max="300" step="5" />
           <input type="number" id="num-sexpediteFee" min="0" max="300" step="5" class="weight-num" />
         </label>
@@ -103,7 +109,7 @@
         </label>
       </div>
       <div class="sub-settings">
-          <label class="checkbox-row"><input type="checkbox" id="chk-ndlock" /> Notre Dame Lock</label>
+          <label class="checkbox-row"><input type="checkbox" id="chk-ndlock" /> Notre Dame Locked to independence?</label>
 
 
 
@@ -200,12 +206,12 @@
         </div>
       </details> -->
 
-      <button id="btn-run" class="btn btn-primary btn-large">Run engine</button>
+      
     </section>
 
     <!-- STEP 3: Preview -->
-    <section class="panel panel-wide" id="panel-preview">
-      <h2>3. Review changes</h2>
+    <section class="panel" id="panel-preview">
+      <h2>4. Review changes and Edit conferences</h2>
       <div class="preview-toolbar">
         <span>This tool does not edit your save file. Use the in-game custom conferences menu to apply changes.</span>
       </div>

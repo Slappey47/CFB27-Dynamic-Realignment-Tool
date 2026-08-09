@@ -502,12 +502,114 @@ function renderPreview(engineresults) {
   const list = document.getElementById('preview-list');
   list.replaceChildren();
   const arr =[];
-  console.log("hi0");
-  
+  //console.log("hi0");
+  const arr2 =[];
+  const arr3 = []
+  for(const x of engineResults.summary){
+    if(x[0]=="Independent"){
+      arr3.push(x[1]);
+    }
+    arr2.push(x[1]);
+  }
 
 
-  for (const result of engineresults) {
-    console.log("hi");
+
+  for (const result of engineresults.moves){
+    const row = document.createElement('div');
+    row.className = 'team-row';
+    const span1 = document.createElement('span');
+    span1.textContent = result[0];
+    span1.className = 'team-name';
+    row.appendChild(span1);
+    if(result[1]!= null && result[2]!= null&& result[3]!= null && result[4]!= null){
+      
+      const span2 = document.createElement('span');
+      span2.innerHTML = String("Additions<br /><br />"+result[1]+"<br />"+result[2]);
+      row.appendChild(span2);
+      const span3 = document.createElement('span');
+      span3.innerHTML = String("Expulsions<br /><br />"+result[3]+"<br />"+result[4]);
+      row.appendChild(span3);
+      //list.appendChild(row);
+  }else if(result[1]!= null && result[3]!= null){
+
+      const span2 = document.createElement('span');
+      span2.innerHTML = String("Additions<br /><br />"+result[1])
+      row.appendChild(span2);
+      const span3 = document.createElement('span');
+      span3.innerHTML = String("Expulsions<br /><br />"+result[3])
+      row.appendChild(span3);
+      //list.appendChild(row);
+  }else if(result[1]!= null && result[2]!= null){
+
+      const span2 = document.createElement('span');
+      span2.innerHTML = String("Additions<br /><br />"+result[1]+"<br />"+result[2]);
+      row.appendChild(span2);
+      //list.appendChild(row);
+  }else if(result[1]!= null){
+      const span2 = document.createElement('span');
+      span2.innerHTML = String("Additions<br /><br />"+result[1]);
+      row.appendChild(span2);
+      //list.appendChild(row);
+  }else if(result[3]!= null && result[4]!= null){
+      const span3 = document.createElement('span');
+      span3.innerHTML = String("Expulsions<br /><br />"+result[3]+"<br />"+result[4]);
+      row.appendChild(span3);
+      //list.appendChild(row);
+
+  }else if(result[3]!= null){
+      const span3 = document.createElement('span');
+      span3.innerHTML = String("Expulsions<br /><br />"+result[3]);
+      row.appendChild(span3);
+      //list.appendChild(row);
+  }
+  const interested =[];
+  const probation = [];
+  for(const val of result[7]){
+    if(val[1]!= 100 && val[1]!= 0){
+      if(val[1]<50){
+        interested.push(val);
+      }else{
+        probation.push(val);
+      }
+    }
+  }
+  interested.sort((a,b)=>{return b[2]-a[2];});
+  probation.sort((a,b)=>{return a[2]-b[2];});
+  interested.sort((a,b)=>{return b[1]-a[1];});
+  probation.sort((a,b)=>{return a[1]-b[1];});
+  //console.log(interested);
+  //console.log(probation);
+
+  if(interested.length > 0){
+    const span3 = document.createElement('span');
+    span3.innerHTML += String("Interest<br /><br />");
+    for(const r of interested){
+      if(arr2.includes(r[1])==false){
+      span3.innerHTML += String(r[0]+"-Level "+String(r[1])+"<br />");}
+    }
+    row.appendChild(span3);
+
+  }
+  if(probation.length > 0){
+    const span3 = document.createElement('span');
+    span3.innerHTML += String("Probation<br /><br />");
+    for(const r of probation){
+      if(arr2.includes(r[1])==false){
+      span3.innerHTML += String(r[0]+"-Level "+String(100-r[1])+"<br />");}
+    }
+    row.appendChild(span3);
+
+  }
+
+
+
+  list.appendChild(row);
+}
+}
+/*
+
+  for (const result of engineresults.moves) {
+    //console.log("hi");
     
     
     if(result[1]== null && result[3]== null){
@@ -548,8 +650,8 @@ function renderPreview(engineresults) {
     row.append(nameCell);
     list.appendChild(row);
 
-
-  };
+*/
+  
   /**
   const list = document.getElementById('preview-list');
   list.innerHTML = '';
@@ -643,7 +745,7 @@ function renderPreview(engineresults) {
     list.appendChild(row);
   }
   updateSelectedCount();*/
-}
+
 
 //document.getElementById('team-search').addEventListener('input', renderPreview);
 //document.getElementById('chk-changed-only').addEventListener('change', renderPreview);

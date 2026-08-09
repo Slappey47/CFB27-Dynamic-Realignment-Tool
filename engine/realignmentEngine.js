@@ -35,8 +35,6 @@ function defaultSettings() {
     sEvenDesire: 100,
     moratoriumPeriod: 1,
     NDlock : 1,
-
-
       };
 }
 
@@ -242,6 +240,7 @@ function sendApplications(settings, teamsByIndex,confArray){
             let temp=0;
             if(conf.Name == "Independent"){
                 temp = 0;
+                if(team.displayName == "Notre Dame"&&settings.NDlock==1){temp = 1000000;}
                 team.confInterest[i].push(temp); // for now, teams don't want to be independent at all. I might chnage this
             }else{
                 temp = (team.confInterest[i][1]*settings.teamPrestigeWeight)+(team.confInterest[i][3]*settings.teamTenureWeight)-(team.confInterest[i][2]*settings.teamGeoWeight);

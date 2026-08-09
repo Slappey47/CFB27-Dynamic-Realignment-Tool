@@ -257,8 +257,17 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
 
   await recordSnapshots(teamsByIndex,confArray,season,dynastyCode,app);
   //const results = {};
+
+  for (const move of moves){
+    for (const conf of confArray){
+      if(move[0]==conf.Name){
+        move.push(conf.applicationStatus);
+        break;
+      }
+    }
+  }
  
-  return moves;
+  return {moves, summary};
 });
 
 /**

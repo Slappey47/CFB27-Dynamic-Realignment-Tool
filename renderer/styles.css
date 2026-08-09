@@ -30,7 +30,7 @@ body {
 
 .layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 1rem;
   padding: 1rem;
 }
@@ -41,6 +41,7 @@ body {
   border-radius: 10px;
   padding: 1rem 1.25rem;
 }
+.panel-left { grid-column: 1; }
 .panel-wide { grid-column: 1 / -1; }
 
 .panel h2 { font-size: 0.95rem; margin: 0 0 0.75rem; color: var(--text-primary); }
@@ -101,8 +102,7 @@ body {
 .preview-list { display: flex; flex-direction: column; gap: 0.4rem; max-height: 480px; overflow-y: auto; }
 
 .team-row {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   gap: 0.75rem;
   align-items: center;
   padding: 0.5rem;
