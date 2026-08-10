@@ -179,7 +179,7 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
 
 
   
- arr = Object.keys(hist[dynastyCode][String(teamsByIndex[0].displayName)]);
+ //arr = Object.keys(hist[dynastyCode][String(teamsByIndex[0].displayName)]);
 
  console.log(arr);
   
