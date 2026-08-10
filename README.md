@@ -7,10 +7,9 @@ CFB27 allows for manual conference realignment, but for me it has felt hollow wi
 
 - This tool is designed to generate realignment moves based on realistic factors. (Team Prestige, Geography, and Conference Tenure)
 - In order to generate movement, this tool also gives conferences the ability to kick out teams that are underperforming. While this is unrealistic, this is necessary to create room in the power conferences for teams
-- This tool is also 
-- This tool is designed to be run during xxxx week. It will read your save file, and spit out realignment moves. For now, this tool is designed for the user to input those moves through the manual custom conferences editor. Direct save editing may be added in the future
+- This tool is designed to be run during the offseason (it should be run first in the preseason/season. afterwards it should be run during offseason). It will read your save file, and spit out realignment moves. For now, this tool is designed for the user to input those moves through the manual custom conferences editor. Direct save editing may be added in the future
 - This tool is built off of balla14's pipeline tool. I just  swapped out the guts, so I wanted to give them a shout out here, this wouldn't be possible without their help.
-- This is my first time creating a mod or tool, and it is also my first time creating an Electron app.
+- This is my first time creating a mod or tool, and it is also my first time creating an Electron app. I appreciate all your feedback, I'm sure I've screwed something up.
 
 
 ## Download and Setup
@@ -44,8 +43,8 @@ automatically on first launch.
 
 ## How To Use - Workflow
 
-1. **Create your save**
-2. **Open your save** -- with the tool open, select your dynasty save file directly. That's it,
+1. **Create your save** -- Inside CFB 27, make sure you've created a save that can be read by the tool
+2. **Open your save** -- With the tool open, select your dynasty save file directly. That's it,
    no exports.
 3. **Settings** -- You can change the tool's settings to customize youyr experience. These settings are remembered after you close the tool. You can find more info on what each setting does below. Note: you can change settings -> run engine -> repeat to help dial in your settings. Running the engine again on the same save will overwrite the previous run.
 4. **Run engine** -- reads every team's prestige rating, current conference, and more straight from the save. This calculates realignment interest and realignment moves once that interest is strong enough. 
