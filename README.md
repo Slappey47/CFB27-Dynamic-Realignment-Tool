@@ -43,8 +43,8 @@ automatically on first launch.
 
 ## How To Use - Workflow
 
-1. **Create your save**
-2. **Open your save** -- with the tool open, select your dynasty save file directly. That's it,
+1. **Create your save** -- Inside CFB 27, make sure you've created a save that can be read by the tool
+2. **Open your save** -- With the tool open, select your dynasty save file directly. That's it,
    no exports.
 3. **Settings** -- You can change the tool's settings to customize youyr experience. These settings are remembered after you close the tool. You can find more info on what each setting does below. Note: you can change settings -> run engine -> repeat to help dial in your settings. Running the engine again on the same save will overwrite the previous run.
 4. **Run engine** -- reads every team's prestige rating, current conference, and more straight from the save. This calculates realignment interest and realignment moves once that interest is strong enough. 
