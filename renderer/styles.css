@@ -6,8 +6,8 @@
   --text-primary: #eceeef;
   --text-secondary: #a9acb1;
   --text-muted: #74777d;
-  --accent: #fe5000; /* Bowling Green orange, as a nod to where this tool was born */
-  --accent-hover: #ff6a26;
+  --accent: #9b00b6; /* Bowling Green orange, as a nod to where this tool was born */
+  --accent-hover: #9b00b6;
   --danger: #c5050c;
   --success: #2e7d32;
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;

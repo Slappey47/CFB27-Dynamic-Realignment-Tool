@@ -9,6 +9,8 @@ if not exist "node_modules" (
     echo.
 )
 
+
+
 echo Starting Dynamic Conference Realignment Tool...
 call npm start
 

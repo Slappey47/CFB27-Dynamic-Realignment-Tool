@@ -163,11 +163,13 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   const dynastyCode = await readDynastyCode(franchise);
   const userTeam = await readUserTeam(franchise);
 
+  console.log(userTeam);
+
   const season = await readCurrentSeason(franchise);
   const settings2 = loadUserSettings();
 
 
-  console.log(season);
+  //console.log(season);
 
 
   let hist = loadHistory(app);
@@ -177,14 +179,16 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
 
 
   
+ arr = Object.keys(hist[dynastyCode][String(teamsByIndex[0].displayName)]);
 
+ console.log(arr);
   
 
   try{
     arr = Object.keys(hist[dynastyCode][String(userTeam.displayName)]);
      
   }catch{
-    //console.log("caught");
+    console.log("caught");
     
   }
 
@@ -211,9 +215,9 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   }
 
 
-  //console.log(arr);
-  //console.log(s);
-  //console.log(n);
+  console.log(arr);
+  console.log(s);
+  console.log(n);
 
   let baselineSeason = 0;
 
@@ -225,7 +229,7 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   if(n==0){
     await setBaseline(teamsByIndex, confArray,season,settings2);
     baselineSeason = parseFloat(season);
-    //console.log("set basline")
+    console.log("set basline")
 
   }else{
     await pullHistory(teamsByIndex, confArray,String(arr[n-1]),hist,dynastyCode,settings2,season);

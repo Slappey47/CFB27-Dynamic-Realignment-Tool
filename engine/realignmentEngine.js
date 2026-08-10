@@ -177,8 +177,8 @@ function setupTeams(settings,teamsByIndex, confArray){
             };
             team.confInterest.push(temp);
         };
-        console.log(team.displayName);
-        console.log(team.confInterest);
+        //console.log(team.displayName);
+        //console.log(team.confInterest);
     };    
                             
 }
@@ -271,18 +271,18 @@ function sendApplications(settings, teamsByIndex,confArray){
             }
             i++;
         };
-        console.log(team.displayName);
-        console.log(team.confInterest);
+        //console.log(team.displayName);
+        //console.log(team.confInterest);
     };
 }
 
 
 function reviewApplications(settings, teamsByIndex,confArray){
     for (const conf of confArray){
-        console.log("pre: "+conf.Name);
+        //console.log("pre: "+conf.Name);
         for(const q of conf.applicationStatus){
             if(q[1]!=0 &&q[1]!=100){
-                console.log(q);
+                //console.log(q);
             }
         }
     
@@ -363,10 +363,10 @@ function reviewApplications(settings, teamsByIndex,confArray){
                 }
             }
         }
-        console.log(conf.Name);
+        //console.log(conf.Name);
         for(const q of conf.applicationStatus){
             if(q[1]!=0 &&q[1]!=100){
-                console.log(q);
+                //console.log(q);
             }
         };
     }
