@@ -1,6 +1,6 @@
 {
   "name": "cfb27-realignment-tool",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Dynamic conference realignment tool for CFB27 dynasty saves",
   "main": "main.js",
   "scripts": {

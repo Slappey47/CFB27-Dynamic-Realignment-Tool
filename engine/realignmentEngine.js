@@ -310,10 +310,11 @@ function reviewApplications(settings, teamsByIndex,confArray){
             conf.eThresh =  conf.confAVGAppeal - (settings.expelThresholdBaseline - (conf.oddStatus*settings.evenDesire) - ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire));
             conf.iThresh = conf.confAVGAppeal + ( settings.inviteThresholdBaseline - (conf.oddStatus*settings.evenDesire) + ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire));
             if(conf.memberNames.includes(team[0])){
+                if(team[1]<50){team[1]=100};
                 //const thresh =  conf.confAVGAppeal -(settings.expelThresholdBaseline - (conf.oddStatus*settings.evenDesire) - ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire);
                 let x =settings.applicationProcessingLength;
                 let z = conf.appeals[conf.memberNames.indexOf(team[0])];
-                team.push(z);
+                team[2]=z;
                 let m = -10000;
                 for(let y = 0; y<(2*x); y++){
                     let a = conf.eThresh - (settings.expediteFee*(x-y-1));

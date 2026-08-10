@@ -157,15 +157,21 @@ ipcMain.handle('get-save-info', async (event, { savePath}) => {
  * before commit-changes is ever called.
  */
 ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
+
+  try{
+
   const franchise = await openSave(savePath);
   const teamsByIndex = await readTeamPrestige(franchise);
   const confArray = await readConferences(franchise);
   const dynastyCode = await readDynastyCode(franchise);
   const userTeam = await readUserTeam(franchise);
-
-  console.log(userTeam);
-
   const season = await readCurrentSeason(franchise);
+
+
+
+  //console.log(userTeam);
+
+
   const settings2 = loadUserSettings();
 
 
@@ -185,12 +191,14 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   
 
   try{
-    arr = Object.keys(hist[dynastyCode][String(userTeam.displayName)]);
+    arr = Object.keys(hist[dynastyCode][String(teamsByIndex[0].displayName)]);
      
   }catch{
     console.log("caught");
     
   }
+
+  //try{
 
   let q = 0;
   for(const sea of arr){
@@ -236,8 +244,13 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
     baselineSeason = arr[0];
 
   }
-
-
+/*
+  }catch{
+      dialog.showErrorBox(
+  'An Error Occurred', 
+  'The application failed to read the realignment history.'
+);
+  }*/
 
   
   //throw new Error();
@@ -294,7 +307,9 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   await performanceReview(settings2,teamsByIndex,confArray);
   await sendApplications(settings2, teamsByIndex,confArray);
   await reviewApplications(settings2, teamsByIndex,confArray);
+
   // moves = Array();
+
   let moves = await calculateMoves(settings2, teamsByIndex,confArray, baselineSeason, season);
   
   let accepted = await executeMoves(teamsByIndex,confArray,moves);
@@ -314,6 +329,8 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
   };
 
   const summary = await moveSummary(moves);
+
+  
   //console.log(summary);
   //console.log("hi17");
   //console.log(typeof moves);
@@ -334,8 +351,18 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
       }
     }
   }
+
  
   return {moves, summary};
+
+}catch{
+    
+      dialog.showErrorBox(
+  'An Error Occurred', 
+  'The application failed to run the engine.'
+);
+  
+}
 });
 
 /**
