@@ -259,7 +259,10 @@ function sendApplications(settings, teamsByIndex,confArray){
         };
         i=0;
         for (const conf of confArray){// compare to current conf
-            if(team.confInterest[i][4] > team.currentConfAppeal){
+            if(team.displayName == "Notre Dame"&&settings.NDlock==1){
+                team.confInterest[i].push(-1);
+            }
+            else if(team.confInterest[i][4] > team.currentConfAppeal){
                 team.confInterest[i].push(1);
                 //team.confInterest[i].push(team.confInterest[i][4]);
             }else if(team.confInterest[i][4] == team.currentConfAppeal){
