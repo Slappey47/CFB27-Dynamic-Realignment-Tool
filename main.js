@@ -158,7 +158,7 @@ ipcMain.handle('get-save-info', async (event, { savePath}) => {
  */
 ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
 
-  //try{
+  try{
 
   const franchise = await openSave(savePath);
   const teamsByIndex = await readTeamPrestige(franchise);
@@ -356,14 +356,14 @@ ipcMain.handle('run-engine', async (event, { savePath, settings }) => {
  
   return {moves, summary};
 
-/*}catch{
+}catch{
     
       dialog.showErrorBox(
   'An Error Occurred', 
   'The application failed to run the engine.'
 );
   
-}*/
+}
 });
 
 /**
