@@ -49,6 +49,7 @@ function setBaseline(teamsByIndex,confArray,season,settings){
         conf.tenures = [];
         for(let j=0;j<conf.memberRecords.length;j++){
             const t = String(conf.memberRecords[j].DisplayName);
+            console.log(t);
             const c = SCHOOL_CONF[t][0];
             teamsByIndex[conf.memberRecords[j].TeamIndex].confName = conf.Name;
             if(c == conf.Name){
