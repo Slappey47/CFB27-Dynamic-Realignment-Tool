@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const { pullHistory, recordSnapshots, defaultSettings,recalculateMoves,moveSummary, validateMoves, setBaseline, setupTeams,performanceReview, executeMoves, sendApplications,reviewApplications,calculateMoves } = require('./engine/realignmentEngine');
+const { pullHistory, recordSnapshots, defaults, defaultSettings,recalculateMoves,moveSummary, validateMoves, setBaseline, setupTeams,performanceReview, executeMoves, sendApplications,reviewApplications,calculateMoves } = require('./engine/realignmentEngine');
 
 const {
   openSave,
@@ -32,6 +32,8 @@ const LOGOS_DIR = app.isPackaged
 
 const SETTINGS_PATH = () => path.join(app.getPath('userData'), 'pipeline-tool-settings.json');
 
+
+
 function applySlidersToSettings(settings3){
   settings3.prestigedecay = 1 / settings3.prestigeAvgLength;
 
@@ -59,7 +61,7 @@ function loadUserSettings() {
   let settings3 ={};
   try {
     const raw = fs.readFileSync(SETTINGS_PATH(), 'utf8');
-    settings3 = { ...defaultSettings(), ...JSON.parse(raw) };
+    settings3 = { ...defaultSettings(), ...JSON.parse(raw), ...defaults() };
   } catch {
     settings3 = defaultSettings();
   }

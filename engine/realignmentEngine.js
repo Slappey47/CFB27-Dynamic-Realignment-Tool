@@ -5,36 +5,44 @@ const { recordSnapshot, loadHistory } = require('../io/pipelineHistory');
 
 const { SCHOOL_COORDS, SCHOOL_CONF, haversineMiles } = require('../data/schoolCoordinates');
 
+
+function defaults(){
+    return{
+    dConfTenureWeight: 0.5,
+    dconfPrestigeWeight: 50,
+    dconfGeoWeight: 1/10,
+    dconfStabilityWeight:50,
+    dteamTenureWeight: 0.5,
+    dteamPrestigeWeight: 50,
+    dteamGeoWeight: 1/10,
+    dinviteThresholdBaseline: -50,
+    dexpelThresholdBaseline: 75,
+    dexpediteFee: 75,
+    dconfSizeDesire: 15,
+    dEvenDesire: 150,
+    hawaiiBonus: 400,
+
+
+    };
+}
+
 function defaultSettings() {
     
   return {
     prestigeAvgLength: 5, //how many years of Prestige history are considered
     prestigedecay: 0.2,
-
-    dConfTenureWeight: 0.5,
     sTenureWeight: 100,
-    dconfPrestigeWeight: 50,
     sPrestigeWeight: 100,
     sGeoWeight: 100,
-    dconfGeoWeight: 1/10,
-    dconfStabilityWeight:25,
     sconfStabilityWeight:100,
-    dteamTenureWeight: 0.5,
-    dteamPrestigeWeight: 50,
-    dteamGeoWeight: 1/10,
-    dinviteThresholdBaseline: -25,
-    dexpelThresholdBaseline: 100,
-    dexpediteFee: 75,
     sexpediteFee: 100,
-    dconfSizeDesire: 20,
     sconfSizeDesire: 100,
     confDesiredSize: {"ACC":16, "SEC": 16,"Big Ten":16,"Big 12":16,"Pac-12":12, "American":12,"CUSA":12,"MWC":12,"MAC":12,"Sun Belt":12,},
     applicationProcessingLength: 3,
-    dEvenDesire: 75,
+    dEvenDesire: 50,
     sEvenDesire: 100,
     moratoriumPeriod: 1,
     NDlock : 1,
-    hawaiiBonus: 200,
       };
 }
 
@@ -49,7 +57,7 @@ function setBaseline(teamsByIndex,confArray,season,settings){
         conf.tenures = [];
         for(let j=0;j<conf.memberRecords.length;j++){
             const t = String(conf.memberRecords[j].DisplayName);
-            console.log(t);
+            //console.log(t);
             const c = SCHOOL_CONF[t][0];
             teamsByIndex[conf.memberRecords[j].TeamIndex].confName = conf.Name;
             if(c == conf.Name){
@@ -193,7 +201,7 @@ function performanceReview(settings,teamsByIndex,confArray){
         conf.appeals = [];
         conf.appealDeltas = [];
         conf.currentsize = 0;
-        conf.oddStatus = conf.currentsize % 2
+        
         for(const opp of conf.memberRecords){
             for(const t of teamsByIndex){
                 if(opp.DisplayName==t.displayName){
@@ -204,6 +212,7 @@ function performanceReview(settings,teamsByIndex,confArray){
             };
             conf.currentsize++;                                                                                  
         }; 
+        conf.oddStatus = conf.currentsize % 2
         let sum = 0;
         let num = 0;
         for(const val of conf.prestiges ){
@@ -311,8 +320,11 @@ function reviewApplications(settings, teamsByIndex,confArray){
                 }
 
             };
-            conf.eThresh =  conf.confAVGAppeal - (settings.expelThresholdBaseline - (conf.oddStatus*settings.evenDesire) - ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire));
-            conf.iThresh = conf.confAVGAppeal + ( settings.inviteThresholdBaseline - (conf.oddStatus*settings.evenDesire) + ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire));
+            conf.eThresh =  conf.confAVGAppeal - (settings.expelThresholdBaseline - (conf.oddStatus*settings.evenDesire)/2 - ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire));
+            conf.iThresh = conf.confAVGAppeal + ( settings.inviteThresholdBaseline - (conf.oddStatus*settings.evenDesire)/2 + ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire));
+            //console.log(conf.Name);
+            //console.log(conf.eThresh);
+
             if(conf.memberNames.includes(team[0])){
                 if(team[1]<50){team[1]=100};
                 //const thresh =  conf.confAVGAppeal -(settings.expelThresholdBaseline - (conf.oddStatus*settings.evenDesire) - ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire);
@@ -342,6 +354,9 @@ function reviewApplications(settings, teamsByIndex,confArray){
                     //console.log("c");
                     team[1]-= m;
                 }
+                if(conf.Name=="Pac-12"){
+            console.log(team);
+        }
             }else if(teamInterest<1){
                 //console.log(team[0]);
                 //console.log("no interest");
@@ -368,6 +383,7 @@ function reviewApplications(settings, teamsByIndex,confArray){
                 }
             }
         }
+        
         //console.log(conf.Name);
         for(const q of conf.applicationStatus){
             if(q[1]!=0 &&q[1]!=100){
@@ -416,8 +432,12 @@ function calculateMoves(settings, teamsByIndex,confArray,baselineSeason,season){
             if(conf.oddStatus==0){
                 flipodd = 1
             }
+            //console.log(conf.Name);
+            
+            //console.log(flipodd);
             conf.moves = [];
             let num = -(conf.oddStatus*settings.evenDesire) - ((Math.abs(conf.currentsize-conf.desiredSize))*settings.confSizeDesire);
+            //console.log(num);
             conf.moves.push([conf.Name,null,null,null,null,num,0]);
             if(want>=2){
                 let num = wantlist[0][2]+wantlist[1][2]-(2*conf.iThresh) -(2*settings.confStabilityWeight) - ((Math.abs((conf.currentsize+2)-conf.desiredSize))*settings.confSizeDesire)-(conf.oddStatus*settings.evenDesire);
@@ -446,11 +466,16 @@ function calculateMoves(settings, teamsByIndex,confArray,baselineSeason,season){
                 conf.moves.push([conf.Name,wantlist[0][0],null,hatelist[0][0],null,num,0]);
             }
             conf.moves.sort((a,b)=>{return b[5]-a[5];});
-            /** 
+            if(conf.Name =="Pac-12"){
             console.log(conf.Name);
+            console.log(conf.oddStatus*settings.evenDesire);
+            console.log(((Math.abs(conf.currentsize-conf.desiredSize))*settings.confSizeDesire));
+            console.log(wantlist);
+            console.log(hatelist);
+            console.log(conf.confAVGAppeal);
             console.log(conf.moves);
             console.log(conf.iThresh);
-            console.log(conf.eThresh);*/
+            console.log(conf.eThresh);}
             movesArray.push(conf.moves[0]);
         } 
     };
@@ -714,4 +739,5 @@ module.exports = {
     moveSummary,
     recordSnapshots,
     pullHistory,
+    defaults,
 };
