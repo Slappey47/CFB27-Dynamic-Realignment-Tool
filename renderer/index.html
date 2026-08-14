@@ -28,7 +28,9 @@
       <h2>3. Run Engine </h2>
       <p class="hint">The first time you run the engine on a dynasty can be at any point during the season.</p>
       <p class="hint">Afterwards, this tool is intended to be run every offseason, during the week when you're given the ability to cusotmize conferences</p>
-      <button id="btn-run" class="btn btn-primary btn-large">Run engine</button>
+      <p class="hint">Slow Realignment is the defualt way to run the engine. For information on Full Realignment Cycle, consult the README</p>
+      <button id="btn-run" class="btn btn-primary btn-large">Slow Realignment</button>
+      <button id="btn-run-cycle" class="btn btn-primary btn-large">Full Realignment Cycle</button>
 
     </section>
 
@@ -110,6 +112,35 @@
           <input type="number" id="num-moratoriumPeriod" min="0" max="5" step="1" class="weight-num" />
         </label>
       </div>
+      <div class="sliders">
+         <label class="slider-row">
+          <span>Hawai'i Bonus</span>
+          <input type="range" id="slider-hawaii" min="0" max="300" step="5" />
+          <input type="number" id="num-hawaii" min="0" max="300" step="5" class="weight-num" />
+        </label>
+      </div>
+      <div class="sliders">
+         <label class="slider-row">
+          <span>P4 conference size</span>
+          <input type="range" id="slider-P4confsize" min="8" max="20" step="2" />
+          <input type="number" id="num-P4confsize" min="8" max="20" step="2" class="weight-num" />
+        </label>
+      </div>
+      <div class="sliders">
+         <label class="slider-row">
+          <span>G6 conference size</span>
+          <input type="range" id="slider-G5confsize" min="8" max="20" step="2" />
+          <input type="number" id="num-G5confsize" min="8" max="20" step="2" class="weight-num" />
+        </label>
+      </div>
+      <div class="sliders">
+         <label class="slider-row">
+          <span>PAC 12 size</span>
+          <input type="range" id="slider-PAC12confsize" min="8" max="20" step="2" />
+          <input type="number" id="num-PAC12confsize" min="8" max="20" step="2" class="weight-num" />
+        </label>
+      </div>
+      
       <div class="sub-settings">
           <label class="checkbox-row"><input type="checkbox" id="chk-ndlock" /> Notre Dame Locked to independence?</label>
 

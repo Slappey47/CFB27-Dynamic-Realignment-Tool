@@ -164,6 +164,15 @@ function syncSlidersFromSettings() {
 
   document.getElementById(`slider-moratoriumPeriod`).value = settings.moratoriumPeriod;
   document.getElementById(`num-moratoriumPeriod`).value = settings.moratoriumPeriod;
+  document.getElementById(`slider-hawaii`).value = settings.shawaiiBonus;
+  document.getElementById(`num-hawaii`).value = settings.shawaiiBonus;
+  document.getElementById(`slider-P4confsize`).value = settings.P4confsize;
+  document.getElementById(`num-P4confsize`).value = settings.P4confsize;
+  document.getElementById(`slider-PAC12confsize`).value = settings.PAC12confsize;
+  document.getElementById(`num-PAC12confsize`).value = settings.PAC12confsize;
+  document.getElementById(`slider-G5confsize`).value = settings.G5confsize;
+  document.getElementById(`num-G5confsize`).value = settings.G5confsize;
+  
   document.getElementById('chk-ndlock').checked = settings.NDlock === 1;
   document.getElementById(`chk-ndlock`).unchecked = settings.NDlock === 0;
 
@@ -370,6 +379,22 @@ bindSliderNumberPair('slider-moratoriumPeriod', 'num-moratoriumPeriod', (v) => {
   settings.moratoriumPeriod = v;
   window.api.saveSettings(settings);
 });
+bindSliderNumberPair('slider-hawaii', 'num-hawaii', (v) => {
+  settings.shawaiiBonus = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-P4confsize', 'num-P4confsize', (v) => {
+  settings.P4confsize = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-PAC12confsize', 'num-PAC12confsize', (v) => {
+  settings.PAC12confsize = v;
+  window.api.saveSettings(settings);
+});
+bindSliderNumberPair('slider-G5confsize', 'num-G5confsize', (v) => {
+  settings.G5confsize = v;
+  window.api.saveSettings(settings);
+});
 
 
 document.getElementById('chk-ndlock').addEventListener('change', (e) => { settings.NDlock = e.target.checked ? 1 : 0; window.api.saveSettings(settings); });
@@ -457,30 +482,84 @@ document.getElementById('history-color-scheme-toggle').addEventListener('change'
 // ---- Run engine ----
 
 document.getElementById('btn-run').addEventListener('click', async () => {
-  console.log("hi012");
+  //console.log("hi012");
   if (!savePath) {
-    console.log("hi-1");
+    //console.log("hi-1");
     alert('Select a save file first.');
     return;
   }
   const btn = document.getElementById('btn-run');
   btn.textContent = 'Running\u2026';
   btn.disabled = true;
-  console.log("hi1");
+  //console.log("hi1");
   try {
     engineResults = await window.api.runEngine(savePath, settings);
-    console.log("hi12");
-    console.log(engineResults);
+    //console.log("hi12");
+    //console.log(engineResults);
     selectedTeams = new Set();
     renderPreview(engineResults);
-    console.log("hi6");
+    //console.log("hi6");
   } finally {
-    btn.textContent = 'Run engine';
+    btn.textContent = 'Slow Realignment';
     btn.disabled = false;
   }
-  console.log("hi3");
+  //console.log("hi3");
 
 });
+
+
+document.getElementById('btn-run-cycle').addEventListener('click', async () => {
+  //console.log("hi012");
+  if (!savePath) {
+    //console.log("hi-1");
+    alert('Select a save file first.');
+    return;
+  }
+  const btn = document.getElementById('btn-run-cycle');
+  //btn.textContent = 'Prepping Cycle\u2026';
+  btn.disabled = true;
+  //console.log("hi1");
+  
+
+  try {
+  const originalConf =  await window.api.setupCycle(savePath, settings);
+  let cycle = 0;
+  let engineResults =[];
+  while(true){
+    //console.log("cycle"+cycle);
+    //console.log(originalConf);
+    //btn.textContent = 'Iteration: '+String(cycle +1);
+    engineResults = await window.api.runEngineCycle(savePath, settings, cycle, originalConf);
+
+    if(engineResults.length==0){break;}else{
+
+  for(const t of originalConf){
+  for(const sum of engineResults){
+    if(t[0]==sum[1]){
+      t[2]= sum[0];
+      break;
+    }
+  }
+}}
+cycle++;
+renderPreviewCycle(originalConf,cycle);
+
+  }
+    
+    //console.log("hi12");
+    //console.log(engineResults);
+    selectedTeams = new Set();
+    renderPreviewCycle(originalConf,cycle);
+    //console.log("hi6");
+  } finally {
+    console.log(engineResults);
+    btn.textContent = 'Full Realignment Cycle';
+    btn.disabled = false;
+  }
+  //console.log("hi3");
+
+});
+
 
 // ---- Preview rendering ----
 
@@ -498,6 +577,33 @@ function isTeamChanged(teamName) {
   return [...priorRegions].some((r) => !afterRegions.has(r)) || [...afterRegions].some((r) => !priorRegions.has(r));
 }
 
+function renderPreviewCycle(engineresults,cycle) {
+  const list = document.getElementById('preview-list');
+  list.replaceChildren();
+  //console.log(engineresults)
+  const rowi = document.createElement('div');
+      rowi.className = 'team-row';
+      rowi.textContent = String(cycle) +"  Iterations";
+      list.appendChild(rowi);
+  for (const result of engineresults){
+    if(result[1]!=result[2]){
+      const row = document.createElement('div');
+      row.className = 'team-row';
+      row.textContent = result[0] + "                  Old Conference: "+ result[1]+"                  New Conference: "+result[2];
+      list.appendChild(row);
+    //const span1 = document.createElement('span');
+    //span1.textContent = result[0];
+    //span1.className = 'team-name';
+    //row.appendChild(span1);
+
+
+    }
+  }
+
+}
+
+
+
 function renderPreview(engineresults) {
   const list = document.getElementById('preview-list');
   list.replaceChildren();
@@ -511,10 +617,10 @@ function renderPreview(engineresults) {
     }
     arr2.push(x[1]);
   }
-  console.log("arr2");
-  console.log(arr2);
-  console.log("arr3");
-  console.log(arr3);
+  //console.log("arr2");
+  //console.log(arr2);
+  //console.log("arr3");
+  //console.log(arr3);
 
 
 

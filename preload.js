@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld('api', {
   getDynastyCodeForSave: (savePath) => ipcRenderer.invoke('get-dynasty-code-for-save', { savePath }),
   getSaveInfo: (savePath) => ipcRenderer.invoke('get-save-info', { savePath }),
   runEngine: (savePath, settings) => ipcRenderer.invoke('run-engine', { savePath, settings }),
+  setupCycle: (savePath, settings) => ipcRenderer.invoke('setup-cycle', { savePath, settings }),
+  runEngineCycle: (savePath, settings, cycle, originalConf) => ipcRenderer.invoke('run-engine-cycle', { savePath, settings, cycle, originalConf }),
   commitChanges: (savePath, engineResults, teamNamesToApply, outputDir, settings) =>
     ipcRenderer.invoke('commit-changes', { savePath, engineResults, teamNamesToApply, outputDir, settings }),
 });

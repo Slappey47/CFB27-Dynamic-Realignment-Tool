@@ -5,6 +5,21 @@ const { recordSnapshot, loadHistory } = require('../io/pipelineHistory');
 
 const { SCHOOL_COORDS, SCHOOL_CONF, haversineMiles } = require('../data/schoolCoordinates');
 
+const {
+  openSave,
+  readTeamPipelineMapping,
+  readPlayers,
+  readCoaches,
+  readTeamPrestige,
+  readPipelineRow,
+  writeUpdatedSave,
+  readDynastyCode,
+  readCurrentSeason,
+  readConferences,
+  readConferencesCycle,
+  readUserTeam,
+} = require('../io/saveFile');
+
 
 function defaults(){
     return{
@@ -20,7 +35,7 @@ function defaults(){
     dexpediteFee: 75,
     dconfSizeDesire: 15,
     dEvenDesire: 150,
-    hawaiiBonus: 400,
+    dhawaiiBonus: 400,
 
 
     };
@@ -37,20 +52,24 @@ function defaultSettings() {
     sconfStabilityWeight:100,
     sexpediteFee: 100,
     sconfSizeDesire: 100,
+    P4confsize: 16,
+    PAC12confsize: 12,
+    G5confsize: 12,
     confDesiredSize: {"ACC":16, "SEC": 16,"Big Ten":16,"Big 12":16,"Pac-12":12, "American":12,"CUSA":12,"MWC":12,"MAC":12,"Sun Belt":12,},
     applicationProcessingLength: 3,
     dEvenDesire: 50,
     sEvenDesire: 100,
     moratoriumPeriod: 1,
     NDlock : 1,
+    shawaiiBonus:100,
       };
 }
 
 function setBaseline(teamsByIndex,confArray,season,settings){
     for(const team of teamsByIndex){
-        for(let i =0; i<settings.prestigeAvgLength; i++){
+        //for(let i =0; i<settings.prestigeAvgLength; i++){
             team.prestigeHistory.push(team.currentPrestige);
-        };
+        //};
     };
     for(const conf of confArray){
         conf.applicationStatus = [];
@@ -85,6 +104,7 @@ function setBaseline(teamsByIndex,confArray,season,settings){
 }
 
 function pullHistory(teamsByIndex,confArray,season,hist,dynastyCode,settings,curr){
+    //console.log("pull");
     for(const team of teamsByIndex){
         team.prestigeHistory.push(team.currentPrestige);
         //console.log(typeof hist[dynastyCode]);
@@ -92,27 +112,39 @@ function pullHistory(teamsByIndex,confArray,season,hist,dynastyCode,settings,cur
         //console.log(typeof hist[dynastyCode][team.displayName][String(season-1)][0]);
         //console.log(team.displayName);
         //console.log(hist[dynastyCode][team.displayName][String(season-1)]);
+        let tem = settings.prestigeAvgLength;
+        //console.log("histlength")
+        //console.log(hist[dynastyCode][team.displayName][String(season)].length)
+        if(settings.prestigeAvgLength>hist[dynastyCode][team.displayName][String(season)].length){tem =hist[dynastyCode][team.displayName][String(season)].length + 1; }
         
-        
-        for(let i =1; i<settings.prestigeAvgLength; i++){
+        for(let i =1; i<tem; i++){
             team.prestigeHistory.push(hist[dynastyCode][team.displayName][String(season)][i-1]);
         };
     };
     for(const conf of confArray){
         
-        conf.tenures = hist[dynastyCode][conf.Name+"Tenures"][String(season)];
-        for(let j=0;j<conf.memberRecords.length;j++){
-            const t = String(conf.memberRecords[j].DisplayName);
+        conf.tenures = [];
+        for(let j=0;j<conf.memberNames.length;j++){
+            const t = String(conf.memberNames[j]);
             const c = conf.Name;
-            const c2 = hist[dynastyCode][t+"Conf"][String(season)]
-            const ten = conf.tenures[j];
-            teamsByIndex[conf.memberRecords[j].TeamIndex].confName = conf.Name;
+            const c2 = hist[dynastyCode][t+"Conf"][String(season)];
+            const ten = hist[dynastyCode][t+"Tenure"][String(season)];
+            let m = 0;
+            for (const team of teamsByIndex){
+                if(team.displayName==conf.memberNames[j]){
+            team.confName = conf.Name;
+            break;
+            }m++;}
             if(c == c2){
-                conf.tenures[j] = parseFloat(conf.tenures[j]) + (parseFloat(curr)-parseFloat(season));
-                teamsByIndex[conf.memberRecords[j].TeamIndex].confTenure = conf.tenures[j];
+                if((parseFloat(curr)-parseFloat(season))<0.5){
+                    conf.tenures.push(ten);
+                    teamsByIndex[m].confTenure = conf.tenures[j];
+                }else{
+                conf.tenures.push( parseFloat(ten) + (parseFloat(curr)-parseFloat(season)));
+                teamsByIndex[m].confTenure = conf.tenures[j];}
             } else{
-                conf.tenures[j] = 0;
-                teamsByIndex[conf.memberRecords[j].TeamIndex].confTenure = 0;
+                conf.tenures.push(0) ;
+                teamsByIndex[m].confTenure = 0;
 
             };
         };
@@ -135,7 +167,7 @@ function setupTeams(settings,teamsByIndex, confArray){
         let w = 1;
         let p = 0;
         let q =0;
-        for(let i=0; i<settings.prestigeAvgLength; i++ ){
+        for(let i=0; i<team.prestigeHistory.length; i++ ){
             p+= (w - (settings.prestigedecay*i))*team.prestigeHistory[i];
             q+= (w - (settings.prestigedecay*i));
         };
@@ -241,6 +273,16 @@ function performanceReview(settings,teamsByIndex,confArray){
             conf.appeals.push(temp);
             conf.appealDeltas.push(temp-conf.confAVGAppeal);
         };
+        if(false){
+            console.log(conf.Name);
+            console.log(conf.memberNames);
+            console.log(conf.prestiges);
+            console.log(conf.distances);
+            console.log(conf.tenures);
+            console.log(conf.appeals);
+        }
+
+        
 
     };
 }
@@ -285,7 +327,7 @@ function sendApplications(settings, teamsByIndex,confArray){
             i++;
         };
         //console.log(team.displayName);
-        //console.log(team.confInterest);
+        //if(team.displayName=="James Madison"){console.log(team.confInterest)};
     };
 }
 
@@ -330,6 +372,7 @@ function reviewApplications(settings, teamsByIndex,confArray){
                 //const thresh =  conf.confAVGAppeal -(settings.expelThresholdBaseline - (conf.oddStatus*settings.evenDesire) - ((conf.currentsize-conf.desiredSize)*settings.confSizeDesire);
                 let x =settings.applicationProcessingLength;
                 let z = conf.appeals[conf.memberNames.indexOf(team[0])];
+                
                 team[2]=z;
                 let m = -10000;
                 for(let y = 0; y<(2*x); y++){
@@ -355,7 +398,7 @@ function reviewApplications(settings, teamsByIndex,confArray){
                     team[1]-= m;
                 }
                 if(conf.Name=="Pac-12"){
-            console.log(team);
+            //console.log(team);
         }
             }else if(teamInterest<1){
                 //console.log(team[0]);
@@ -466,8 +509,14 @@ function calculateMoves(settings, teamsByIndex,confArray,baselineSeason,season){
                 conf.moves.push([conf.Name,wantlist[0][0],null,hatelist[0][0],null,num,0]);
             }
             conf.moves.sort((a,b)=>{return b[5]-a[5];});
-            if(conf.Name =="Pac-12"){
+            
+            if(false){
             console.log(conf.Name);
+            for(const q of conf.applicationStatus){
+            if(q[1]!=0 ){
+                console.log(q);
+            }
+        }
             console.log(conf.oddStatus*settings.evenDesire);
             console.log(((Math.abs(conf.currentsize-conf.desiredSize))*settings.confSizeDesire));
             console.log(wantlist);
@@ -520,6 +569,7 @@ function executeMoves(teamsByIndex,confArray,moves){
         }
         
     };
+    //console.log(acceptedInvites);
     return acceptedInvites;
 }
 
@@ -539,7 +589,7 @@ function validateMoves(moves, acceptedInvites){
         move[6]=1;
         const arr = [];
         for(const inv of acceptedInvites){
-            if(move[0]== inv[0] ){
+            if(move[0] == inv[0] ){
                 arr.push(inv[1]);
             }
         };
@@ -555,7 +605,7 @@ function validateMoves(moves, acceptedInvites){
 
         if(move[2]==null){
             //console.log("hellothere");
-        }else if(arr.includes(move[1])){
+        }else if(arr.includes(move[1])&&arr.includes(move[2])){
         }else{
             temp=0;
             move[6]=0;
@@ -713,14 +763,45 @@ function moveSummary(moves){
 }
 
 function recordSnapshots(teamsbyIndex,confArray,season,dynastyCode,app){
+    const teamName = [];
+    const afterEntries =[];
+
     for(const team of teamsbyIndex){
-        recordSnapshot(app,dynastyCode,season,team.displayName,team.prestigeHistory);
-        recordSnapshot(app,dynastyCode,season,team.displayName+"Conf",team.confName);
+        teamName.push(team.displayName);
+        afterEntries.push(team.prestigeHistory);
+        teamName.push(team.displayName+"Conf");
+        afterEntries.push(team.confName);
+        teamName.push(team.displayName+"Tenure");
+        afterEntries.push(team.confTenure);
+        
     }
     for(const conf of confArray){
-        recordSnapshot(app,dynastyCode,season,conf.Name,conf.applicationStatus);
-        recordSnapshot(app,dynastyCode,season,conf.Name+"Tenures",conf.tenures);
+        teamName.push(conf.Name);
+        afterEntries.push(conf.applicationStatus);
+        //recordSnapshot(app,dynastyCode,season,conf.Name,conf.applicationStatus);
+        
     }
+    recordSnapshot(app,dynastyCode,season,teamName,afterEntries);
+  
+
+
+/*}catch{
+    
+      dialog.showErrorBox(
+  'An Error Occurred', 
+  'The application failed to run the engine.'
+);
+  
+}*/
+}
+
+
+function runSingleCycle(savePath,settings){
+    
+
+
+
+  
 
 
 }
@@ -740,4 +821,5 @@ module.exports = {
     recordSnapshots,
     pullHistory,
     defaults,
+    runSingleCycle,
 };

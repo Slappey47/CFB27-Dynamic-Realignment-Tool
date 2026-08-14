@@ -120,6 +120,7 @@ async function readTeamPrestige(franchise) {
       displayName: teamRecord.DisplayName,
       currentPrestige: teamRecord.TeamPrestige,
       prestigeHistory: [],
+      rowNum: teamRecord.index,
     };
 
   };
@@ -130,6 +131,77 @@ async function readTeamPrestige(franchise) {
 
 
 //readingConference data
+
+async function readConferencesCycle(franchise,originalconf,teamsByIndex){
+  //console.log("reading2");
+
+  const teamTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.team);
+  //await teamTable.readRecords("TeamIndex","DisplayName","TeamPrestige");
+  await teamTable.readRecords();
+  const teamTableId = teamTable.header.tableId;
+
+  const confTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.conference);
+  await confTable.readRecords();
+
+  const confData = [];
+
+  let i = 0;
+
+  
+  //console.log("hi3");
+
+  //const listTable = franchise.getTableByUniqueId(TABLE_UNIQUE_IDS.teamsInConference);
+  //await listTable.readRecords();
+  //const listTableId = listTable.header.tableId;
+
+  for (const confRecord of confTable.records) {
+    if (!confRecord.Name) continue; // skip placeholder rows
+    membershipList = [];
+    
+    for (const t of originalconf){
+      if(t[2]==confRecord.Name){
+        for(const t2 of teamsByIndex){
+          if(t2.displayName==t[0]){
+            membershipList.push(t2.rowNum);
+            break;
+          }
+        }
+      }
+    }
+
+    confData[i] = {
+      Name: confRecord.Name,
+      membershipRows: membershipList,
+      memberIDs: [],
+      memberRecords: [],
+      memberNames:[],
+    };
+    i+= 1;
+  };
+
+
+
+  //next thing I have to do is turn those row numbers into something more useful...
+  //although... .myabe that's a task for an engie function rather than a read funciton
+  console.log(confData.length);
+  for(let k = 0; k<confData.length; k++){
+    const membershipRows = confData[k].membershipRows;
+    //console.log("hi5");
+    for(const num of membershipRows){
+      //console.log("hi4");
+      const teamRecord  = teamTable.records[num];
+      confData[k].memberIDs.push(teamRecord.TeamIndex);
+      confData[k].memberRecords.push(teamRecord);
+      confData[k].memberNames.push(teamRecord.DisplayName);
+    }
+    
+
+  };
+
+  //console.log(confData);
+  return confData;
+
+}
 
 async function readConferences(franchise){
   //console.log("reading2");
@@ -215,6 +287,8 @@ async function readConferences(franchise){
   return confData;
 
 }
+
+
 
 /**
  * Reads the Team table (filtering out the handful of non-real placeholder
@@ -1024,4 +1098,5 @@ module.exports = {
   expandTeamPipelineSlots,
   shrinkTeamPipelineSlots,
   readConferences,
+  readConferencesCycle,
 };

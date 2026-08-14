@@ -60,7 +60,7 @@ body {
 .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
 .btn-primary:hover { background: var(--accent-hover); }
 .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; font-weight: 500; }
-.btn-large { width: 100%; padding: 0.65rem; font-size: 0.9rem; margin-top: 0.5rem; }
+.btn-large { width: 49%; padding: 0.65rem; font-size: 0.9rem; margin-top: 0.5rem; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .file-list { list-style: none; padding: 0; margin: 0.75rem 0 0; font-size: 0.82rem; color: var(--text-secondary); }
@@ -109,6 +109,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 0.8rem;
+  white-space: pre;
 }
 .team-row .team-name { font-weight: 500; padding-top: 0.15rem; display: flex; flex-direction: row; align-items: center; gap: 0.3rem; min-width: 0; width: 100%; }
 .team-coaches { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.2rem; width: 100%; min-width: 0; }

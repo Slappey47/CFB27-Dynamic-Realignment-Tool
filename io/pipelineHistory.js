@@ -79,12 +79,19 @@ function saveHistory(app, history) {
 function recordSnapshot(app, dynastyCode, season, teamName, afterEntries, meta = null) {
   const history = loadHistory(app);
   if (!history[dynastyCode]) history[dynastyCode] = {};
-  if (!history[dynastyCode][teamName]) history[dynastyCode][teamName] = {};
+  
 
   //const toStore= {};
   //for (const [tier, region, value] of afterEntries) toStore[region] = { tier, value };
 
-  history[dynastyCode][teamName][String(season)] = afterEntries;;
+  let i = 0;
+  for (const t of teamName){
+    if (!history[dynastyCode][t]) history[dynastyCode][t] = {};
+    history[dynastyCode][String(t)][String(season)] = afterEntries[i];
+    i++;
+  }
+
+  
 
   if (meta) {
     if (!history.__settingsMeta) history.__settingsMeta = {};
