@@ -157,9 +157,11 @@ async function readConferencesCycle(franchise,originalconf,teamsByIndex){
   for (const confRecord of confTable.records) {
     if (!confRecord.Name) continue; // skip placeholder rows
     membershipList = [];
+    let  cname = confRecord.Name;
+    if(confRecord.Name=="MW"){cname="MWC";};
     
     for (const t of originalconf){
-      if(t[2]==confRecord.Name){
+      if(t[2]==cname){
         for(const t2 of teamsByIndex){
           if(t2.displayName==t[0]){
             membershipList.push(t2.rowNum);
@@ -176,6 +178,7 @@ async function readConferencesCycle(franchise,originalconf,teamsByIndex){
       memberRecords: [],
       memberNames:[],
     };
+    if(confData[i].Name=="MW"){confData[i].Name="MWC";};
     i+= 1;
   };
 
@@ -261,7 +264,14 @@ async function readConferences(franchise){
       memberRecords: [],
       memberNames:[],
     };
+
+
+    if(confData[i].Name=="MW"){confData[i].Name="MWC";};
+
+
     i+= 1;
+
+
   };
 
 

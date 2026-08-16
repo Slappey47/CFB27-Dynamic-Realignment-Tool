@@ -273,7 +273,7 @@ function performanceReview(settings,teamsByIndex,confArray){
             conf.appeals.push(temp);
             conf.appealDeltas.push(temp-conf.confAVGAppeal);
         };
-        if(false){
+        if(conf.Name =='MW'||conf.Name == "MWC"||conf.Name=="Pac-12"){
             console.log(conf.Name);
             console.log(conf.memberNames);
             console.log(conf.prestiges);
